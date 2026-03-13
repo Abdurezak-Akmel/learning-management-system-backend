@@ -27,7 +27,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 
 // User routes (includes admin endpoints)
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
 
 
 // If this file is run directly, start the server. When required (for tests), only export the app.
