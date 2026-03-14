@@ -31,6 +31,15 @@ CREATE TABLE Course (
     FOREIGN KEY (created_by) REFERENCES "User"(user_id)
 );
 
+INSERT INTO Course (title, description, category, level, created_by)
+VALUES (
+    'Introduction to SQL', 
+    'Learn the basics of relational databases and queries.', 
+    'Data Science', 
+    'Beginner', 
+    1
+);
+
 CREATE TABLE Video (
     video_id SERIAL PRIMARY KEY,
     course_id INT NOT NULL,
@@ -73,12 +82,10 @@ CREATE TABLE AccessRequest (
     receipt_id INT,
     status VARCHAR(20),
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reviewed_by INT,
     reviewed_at TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES "User"(user_id),
     FOREIGN KEY (course_id) REFERENCES Course(course_id),
-    FOREIGN KEY (receipt_id) REFERENCES Receipt(receipt_id),
-    FOREIGN KEY (reviewed_by) REFERENCES "User"(user_id)
+    FOREIGN KEY (receipt_id) REFERENCES Receipt(receipt_id)
 );
 
 CREATE TABLE AccessLog (

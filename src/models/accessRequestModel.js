@@ -56,16 +56,6 @@ export async function getRequestsByStatus(status) {
   return res.rows;
 }
 
-/**
- * Get requests reviewed by a specific reviewer.
- * @param {number} reviewer_id
- * @returns {Promise<Array>} array of requests
- */
-export async function getRequestsReviewedBy(reviewer_id) {
-  const text = `SELECT * FROM AccessRequest WHERE reviewed_by = $1 ORDER BY reviewed_at DESC`;
-  const res = await query(text, [reviewer_id]);
-  return res.rows;
-}
 
 /**
  * Get pending requests (status = 'pending').
@@ -81,7 +71,7 @@ export async function getPendingRequests() {
  * Update an access request by id. Only allowed fields provided in `updates` will be changed.
  */
 export async function updateAccessRequestById(request_id, updates) {
-  const allowed = ['user_id', 'course_id', 'receipt_id', 'status', 'requested_at', 'reviewed_by', 'reviewed_at'];
+  const allowed = ['user_id', 'course_id', 'receipt_id', 'status', 'requested_at', 'reviewed_at'];
   const set = [];
   const values = [];
   let idx = 1;
@@ -116,7 +106,6 @@ export default {
   getRequestsByUserId,
   getRequestsByCourseId,
   getRequestsByStatus,
-  getRequestsReviewedBy,
   getPendingRequests,
   updateAccessRequestById,
   deleteAccessRequestById,

@@ -3,6 +3,7 @@ import { fetchAllUsers, updateUserRole, deleteUser } from '../controllers/userCo
 import { authenticate } from '../middleware/authMiddleware.js';
 import { requireAdmin } from '../middleware/adminMiddleware.js';
 import { upload, uploadReceipt, getUserReceipts } from '../controllers/receiptControllers.js';
+import { createAccessRequestController, getUserAccessRequests } from '../controllers/accessRequestControllers.js';
 
 const router = express.Router();
 
@@ -20,5 +21,11 @@ router.post('/receipts', authenticate, upload.single('receipt'), uploadReceipt);
 
 // User: get their receipts
 router.get('/receipts', authenticate, getUserReceipts);
+
+// User: create access request
+router.post('/access-requests', authenticate, createAccessRequestController);
+
+// User: get their access requests
+router.get('/access-requests', authenticate, getUserAccessRequests);
 
 export default router;
