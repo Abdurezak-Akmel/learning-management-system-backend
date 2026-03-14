@@ -3,8 +3,16 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+// import accessLogRoutes from './routes/accessLogRoutes.js';
+import accessRequestRoutes from './routes/accessRequestRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+// import courseMaterialRoutes from './routes/courseMaterialRoutes.js';
+// import courseRoutes from './routes/courseRoutes.js';
+// import prtRoutes from './routes/prtRoutes.js';
+import receiptRoutes from './routes/receiptRoutes.js';
+import roleRoutes from './routes/roleRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+// import videoRoutes from './routes/videoRoutes.js';
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -23,12 +31,35 @@ app.use(express.json());
 // });
 
 
+// Access log routes
+// app.use('/api/access-logs', accessLogRoutes);
+
+// Access request routes
+app.use('/api/access-requests', accessRequestRoutes);
+
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Course Material routes
+// app.use('/api/course-materials', courseMaterialRoutes);
+
+// Course Routes
+// app.use('/api/courses', courseRoutes);
+
+// password-reset routes
+// app.use('/api/password-reset', prtRoutes);
+
+// Receipt routes
+app.use('/api/receipts', receiptRoutes);
+
+// Role routes
+app.use('/api/roles', roleRoutes);
 
 // User routes (includes admin endpoints)
 app.use('/api/users', userRoutes);
 
+// Video routes
+// app.use('/api/videos', videoRoutes);
 
 // If this file is run directly, start the server. When required (for tests), only export the app.
 if (process.argv[1] === __filename) {
