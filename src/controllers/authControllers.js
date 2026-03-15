@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { createUser, getUserByEmail, getUserByVerificationToken, updateUserById } from '../models/userModel.js';
+import { createUser, getUserByEmail, getUserByVerificationToken, updateUserById, getUserById } from '../models/userModel.js';
 import { getAllRoles } from '../models/roleModel.js';
 import { createToken, getValidTokenByResetToken, markTokenUsed, deleteTokensByUserId } from '../models/prtModel.js';
 import { generateVerificationToken, isTokenExpired } from '../utils/token.js';
@@ -279,4 +279,175 @@ export async function logout(req, res) {
   }
 }
 
-export default { register, verifyEmail, forgetPassword, validateResetToken, resetPassword, login, logout };
+/**
+ * Refresh token endpoint.
+ * Allows clients to refresh their JWT tokens.
+ */
+export async function refreshToken(req, res) {
+  try {
+    const { refreshToken: providedRefreshToken } = req.body || {};
+    
+    if (!providedRefreshToken) {
+      return res.status(400).json({ success: false, message: 'Refresh token is required' });
+    }
+
+    // Verify refresh token (assuming it's a JWT)
+    let payload;
+    try {
+      payload = verifyToken(providedRefreshToken);
+    } catch (err) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+    }
+
+    // Get user from database
+    const user = await getUserById(payload.user_id);
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User not found' });
+    }
+
+    if (user.email_verified === false) {
+      return res.status(403).json({ success: false, message: 'Email not verified' });
+    }
+
+    // Generate new access token
+    const newPayload = { user_id: user.user_id, role_id: user.role_id };
+    const newToken = generateToken(newPayload, '2h');
+
+    const { password_hash, verification_token, verification_token_expiry, ...userSafe } = user || {};
+    return res.json({ 
+      success: true, 
+      token: newToken, 
+      user: userSafe 
+    });
+  } catch (err) {
+    console.error('refreshToken error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+/**
+ * Get current user profile.
+ * Returns the authenticated user's profile information.
+ */
+export async function getCurrentUser(req, res) {
+  try {
+    const user = await getUserById(req.user.user_id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Remove sensitive fields
+    const { password_hash, verification_token, verification_token_expiry, ...userSafe } = user;
+    return res.json({ success: true, user: userSafe });
+  } catch (err) {
+    console.error('getCurrentUser error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+/**
+ * Update user profile.
+ * Allows users to update their profile information.
+ */
+export async function updateProfile(req, res) {
+  try {
+    const { name, email } = req.body || {};
+    const updates = {};
+
+    if (name !== undefined) {
+      if (typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ success: false, message: 'Name must be a non-empty string' });
+      }
+      updates.name = name.trim();
+    }
+
+    if (email !== undefined) {
+      if (typeof email !== 'string' || email.trim() === '') {
+        return res.status(400).json({ success: false, message: 'Email must be a non-empty string' });
+      }
+      
+      // Check if email is already taken by another user
+      const existingUser = await getUserByEmail(email.trim());
+      if (existingUser && existingUser.user_id !== req.user.user_id) {
+        return res.status(409).json({ success: false, message: 'Email is already in use' });
+      }
+      updates.email = email.trim();
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: 'At least one field must be provided for update' });
+    }
+
+    const updatedUser = await updateUserById(req.user.user_id, updates);
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Remove sensitive fields
+    const { password_hash, verification_token, verification_token_expiry, ...userSafe } = updatedUser;
+    return res.json({ 
+      success: true, 
+      message: 'Profile updated successfully',
+      user: userSafe 
+    });
+  } catch (err) {
+    console.error('updateProfile error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+/**
+ * Change user password.
+ * Allows authenticated users to change their password.
+ */
+export async function changePassword(req, res) {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Current password and new password are required' 
+      });
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'New password must be at least 6 characters long' 
+      });
+    }
+
+    // Get user with current password hash
+    const user = await getUserById(req.user.user_id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const saltRounds = 10;
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    const updatedUser = await updateUserById(req.user.user_id, { password_hash: newPasswordHash });
+    if (!updatedUser) {
+      return res.status(500).json({ success: false, message: 'Failed to update password' });
+    }
+
+    return res.json({ 
+      success: true, 
+      message: 'Password changed successfully' 
+    });
+  } catch (err) {
+    console.error('changePassword error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+export default { register, verifyEmail, forgetPassword, validateResetToken, resetPassword, login, logout, refreshToken, changePassword, getCurrentUser, updateProfile };

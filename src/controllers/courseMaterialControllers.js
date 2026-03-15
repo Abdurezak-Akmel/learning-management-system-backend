@@ -2,6 +2,9 @@ import {
   createMaterial,
   getMaterialById,
   getMaterialsByCourseId,
+  getMaterialsByTitle,
+  getMaterialsByFilename,
+  getMaterialsByFileType,
   getAllMaterials,
   updateMaterialById,
   deleteMaterialById
@@ -97,6 +100,97 @@ export async function getMaterialByIdController(req, res) {
     return res.json({ success: true, material });
   } catch (err) {
     console.error('getMaterialByIdController error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: err.message
+    });
+  }
+}
+
+export async function getMaterialsByCourseIdController(req, res) {
+  try {
+    const courseId = Number(req.params.course_id);
+    if (!Number.isInteger(courseId) || courseId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid course ID'
+      });
+    }
+
+    const materials = await getMaterialsByCourseId(courseId);
+    return res.json({ success: true, materials });
+  } catch (err) {
+    console.error('getMaterialsByCourseIdController error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: err.message
+    });
+  }
+}
+
+export async function getMaterialsByTitleController(req, res) {
+  try {
+    const { title } = req.query;
+    
+    if (!title) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title query parameter is required'
+      });
+    }
+
+    const materials = await getMaterialsByTitle(title.trim());
+    return res.json({ success: true, materials });
+  } catch (err) {
+    console.error('getMaterialsByTitleController error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: err.message
+    });
+  }
+}
+
+export async function getMaterialsByFilenameController(req, res) {
+  try {
+    const { file_name } = req.query;
+    
+    if (!file_name) {
+      return res.status(400).json({
+        success: false,
+        message: 'File name query parameter is required'
+      });
+    }
+
+    const materials = await getMaterialsByFilename(file_name.trim());
+    return res.json({ success: true, materials });
+  } catch (err) {
+    console.error('getMaterialsByFilenameController error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: err.message
+    });
+  }
+}
+
+export async function getMaterialsByFileTypeController(req, res) {
+  try {
+    const { file_type } = req.query;
+    
+    if (!file_type) {
+      return res.status(400).json({
+        success: false,
+        message: 'File type query parameter is required'
+      });
+    }
+
+    const materials = await getMaterialsByFileType(file_type.trim());
+    return res.json({ success: true, materials });
+  } catch (err) {
+    console.error('getMaterialsByFileTypeController error:', err);
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -231,6 +325,10 @@ export default {
   createMaterialController,
   getAllMaterialsController,
   getMaterialByIdController,
+  getMaterialsByCourseIdController,
+  getMaterialsByTitleController,
+  getMaterialsByFilenameController,
+  getMaterialsByFileTypeController,
   updateMaterialController,
   deleteMaterialController
 };
