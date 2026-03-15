@@ -5,6 +5,7 @@ import { createToken, getValidTokenByResetToken, markTokenUsed, deleteTokensByUs
 import { generateVerificationToken, isTokenExpired } from '../utils/token.js';
 import { sendVerificationEmail, sendEmail } from '../utils/email.js';
 import { generateToken, verifyToken } from '../utils/jwt.js';
+import { extractDeviceInfo } from '../utils/device.js';
 
 /**
  * Register a new user.
@@ -23,6 +24,10 @@ export async function register(req, res) {
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
+
+    // Extract device information from request headers
+    const userAgent = req.headers['user-agent'] || 'Unknown Device';
+    const registration_device = extractDeviceInfo(userAgent);
 
     // Check if email already exists
     const existing = await getUserByEmail(email);
@@ -45,6 +50,7 @@ export async function register(req, res) {
       email_verified: false,
       verification_token,
       verification_token_expiry,
+      registration_device,
     });
 
     // Send verification email (don't fail registration if email fails)
@@ -205,6 +211,7 @@ export async function resetPassword(req, res) {
 
 /**
  * Log in a user and return a JWT.
+ * Device-based authentication: Non-admin users can only login from their registered device.
  */
 export async function login(req, res) {
   try {
@@ -219,6 +226,18 @@ export async function login(req, res) {
 
     if (user.email_verified === false) {
       return res.status(403).json({ success: false, message: 'Email not verified' });
+    }
+
+    // Device-based authentication for non-admin users
+    if (user.role_id !== 1) { // Assuming role_id 1 is admin
+      const currentDevice = extractDeviceInfo(req.headers['user-agent'] || 'Unknown Device');
+      
+      if (user.registration_device && user.registration_device !== currentDevice) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Access denied. You can only login from your registered device for security reasons.' 
+        });
+      }
     }
 
     const payload = { user_id: user.user_id, role_id: user.role_id };

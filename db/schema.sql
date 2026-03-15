@@ -4,7 +4,7 @@ CREATE TABLE Role (
     description TEXT
 );
 
-INSERT INTO Role (role_name, description) VALUES ('free-user', 'access to free courses only');
+INSERT INTO Role (role_name, description) VALUES ('admin', 'full-access');
 
 CREATE TABLE "User" (
     user_id SERIAL PRIMARY KEY,
@@ -16,9 +16,14 @@ CREATE TABLE "User" (
     email_verified BOOLEAN DEFAULT FALSE,
     verification_token TEXT,
     verification_token_expiry TIMESTAMP,
+    registration_device VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES Role(role_id)
 );
+
+UPDATE "User"
+SET user_id = 1
+WHERE role_id = 2;
 
 CREATE TABLE Course (
     course_id SERIAL PRIMARY KEY,
@@ -26,27 +31,36 @@ CREATE TABLE Course (
     description TEXT,
     category VARCHAR(100),
     level VARCHAR(50),
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES "User"(user_id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO Course (title, description, category, level, created_by)
+INSERT INTO Course (title, description, category, level)
 VALUES (
     'Introduction to SQL', 
     'Learn the basics of relational databases and queries.', 
     'Data Science', 
-    'Beginner', 
-    1
+    'Beginner'
+);
+
+CREATE TABLE role_course (
+    role_id INT NOT NULL,
+    course_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (role_id, course_id),
+    FOREIGN KEY (role_id) REFERENCES Role(role_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES Course(course_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Video (
     video_id SERIAL PRIMARY KEY,
     course_id INT NOT NULL,
     title VARCHAR(255),
+    description TEXT,
     youtube_url TEXT NOT NULL,
     order_index INT,
     duration INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
 
@@ -88,16 +102,6 @@ CREATE TABLE AccessRequest (
     FOREIGN KEY (receipt_id) REFERENCES Receipt(receipt_id)
 );
 
-CREATE TABLE AccessLog (
-    log_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    course_id INT NOT NULL,
-    access_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_address VARCHAR(45),
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id),
-    FOREIGN KEY (course_id) REFERENCES Course(course_id)
-);
-
 CREATE TABLE password_reset_tokens (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -112,4 +116,4 @@ CREATE TABLE password_reset_tokens (
         ON DELETE CASCADE
 );
 
-TRUNCATE TABLE "User" RESTART IDENTITY;
+TRUNCATE TABLE "password_reset_tokens" RESTART IDENTITY;

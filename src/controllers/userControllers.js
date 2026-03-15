@@ -32,7 +32,7 @@ export async function updateUserByIdController(req, res) {
 		}
 
 		// Validate that only allowed user table fields are being updated
-		const allowedFields = ['name', 'email', 'role_id', 'status', 'email_verified'];
+		const allowedFields = ['name', 'email', 'role_id', 'status', 'email_verified', 'registration_device'];
 		const invalidFields = Object.keys(updates).filter(field => !allowedFields.includes(field));
 		
 		if (invalidFields.length > 0) {

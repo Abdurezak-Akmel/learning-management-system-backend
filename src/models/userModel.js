@@ -2,11 +2,11 @@ import { query } from '../config/db.js';
 
 /**
  * Create a new user.
- * @param {{name?:string,email:string,password_hash:string,role_id?:number,status?:string,email_verified?:boolean,verification_token?:string,verification_token_expiry?:Date}} user
+ * @param {{name?:string,email:string,password_hash:string,role_id?:number,status?:string,email_verified?:boolean,verification_token?:string,verification_token_expiry?:Date,registration_device:string}} user
  * @returns {Promise<object>} inserted user row
  */
 export async function createUser(user) {
-	const text = `INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, verification_token, verification_token_expiry) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`;
+	const text = `INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, verification_token, verification_token_expiry, registration_device) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`;
 	const values = [
 		user.name || null,
 		user.email,
@@ -16,6 +16,7 @@ export async function createUser(user) {
 		user.email_verified === undefined ? false : user.email_verified,
 		user.verification_token || null,
 		user.verification_token_expiry || null,
+		user.registration_device,
 	];
 	const res = await query(text, values);
 	return res.rows[0];
@@ -94,6 +95,7 @@ export async function updateUserById(user_id, updates) {
 		'email_verified',
 		'verification_token',
 		'verification_token_expiry',
+		'registration_device',
 	];
 	for (const key of allowed) {
 		if (Object.prototype.hasOwnProperty.call(updates, key)) {

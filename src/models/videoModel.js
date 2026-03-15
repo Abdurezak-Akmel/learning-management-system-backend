@@ -2,12 +2,12 @@ import { query } from '../config/db.js';
 
 /**
  * Create a new video.
- * @param {{course_id:number,title?:string,youtube_url:string,order_index?:number,duration?:number}} video
+ * @param {{course_id:number,title?:string,description?:string,youtube_url:string,order_index?:number,duration?:number}} video
  * @returns {Promise<object>} inserted video row
  */
 export async function createVideo(video) {
-	const text = `INSERT INTO Video (course_id, title, youtube_url, order_index, duration) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
-	const values = [video.course_id, video.title || null, video.youtube_url, video.order_index || null, video.duration || null];
+	const text = `INSERT INTO Video (course_id, title, description, youtube_url, order_index, duration) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`;
+	const values = [video.course_id, video.title || null, video.description || null, video.youtube_url, video.order_index || null, video.duration || null];
 	const res = await query(text, values);
 	return res.rows[0];
 }
@@ -65,7 +65,7 @@ export async function updateVideoById(video_id, updates) {
 	const set = [];
 	const values = [];
 	let idx = 1;
-	const allowed = ['course_id', 'title', 'youtube_url', 'order_index', 'duration'];
+	const allowed = ['course_id', 'title', 'description', 'youtube_url', 'order_index', 'duration', 'updated_at'];
 	for (const key of allowed) {
 		if (Object.prototype.hasOwnProperty.call(updates, key)) {
 			set.push(`${key} = $${idx++}`);
