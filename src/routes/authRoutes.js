@@ -6,42 +6,45 @@ import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Registration and verification endpoints
-// POST /register - Register a new user account
+//Register a new user account
 router.post('/register', register);
+//Tested and working
 
-// POST /verify-email - Verify user email with token
+//Verify user email with token
 router.post('/verify-email', verifyEmail);
+//Tested and working
 
-// Password reset endpoints
-// POST /forgot-password - Request password reset email
+//Request password reset email
 router.post('/forgot-password', forgetPassword);
+//Tested and working
 
-// POST /validate-reset-token - Validate password reset token
+//Validate password reset token
 router.post('/validate-reset-token', validateResetToken);
+//Tested and working
 
-// POST /reset-password - Reset password with valid token
+//Reset password with valid token
 router.post('/reset-password', resetPassword);
+//Tested and working
 
-// Login/logout endpoints
-// POST /login - Authenticate user and return JWT token
+//Authenticate user and return JWT token
 router.post('/login', login);
+//Tested and working
 
-// POST /logout - Logout user (requires authentication)
+//Logout user (requires authentication)
 router.post('/logout', authenticate, logout);
+//Tested and working
 
-// Token management
-// POST /refresh-token - Refresh JWT access token
+//Refresh JWT access token
 router.post('/refresh-token', refreshToken);
 
-// Profile management (requires authentication)
-// GET /profile - Get current user profile (requires authentication)
+//Get current user profile (requires authentication)
 router.get('/profile', authenticate, getCurrentUser);
 
-// PUT /profile - Update user profile information (requires authentication)
+//Update user profile information (requires authentication)
 router.put('/profile', authenticate, updateProfile);
 
-// PUT /change-password - Change user password (requires authentication)
+//Change user password (requires authentication)
 router.put('/change-password', authenticate, changePassword);
+//Tested and working
 
 export default router;

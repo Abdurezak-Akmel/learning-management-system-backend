@@ -100,8 +100,8 @@ export async function verifyEmail(req, res) {
     try {
       const roles = await getAllRoles();
       if (roles && roles.length) {
-        const firstRoleId = roles[0].role_id;
-        if (!user.role_id) updates.role_id = firstRoleId;
+        const secondRoleId = roles[1].role_id;
+        if (!user.role_id) updates.role_id = secondRoleId;
       }
     } catch (roleErr) {
       // eslint-disable-next-line no-console

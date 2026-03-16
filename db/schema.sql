@@ -93,7 +93,7 @@ CREATE TABLE AccessRequest (
     request_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     course_id INT NOT NULL,
-    receipt_id INT,
+    receipt_id INT NOT NULL,
     status VARCHAR(20),
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMP,

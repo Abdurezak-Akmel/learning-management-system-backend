@@ -5,7 +5,7 @@ import { createReceipt, getReceiptsByUserId } from '../models/receiptModel.js';
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, 'uploads/receipts/');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -30,7 +30,7 @@ const fileFilter = (req, file, cb) => {
 export const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 1 * 1024 * 1024 // 1MB limit
   },
   fileFilter: fileFilter
 });

@@ -10,13 +10,15 @@ import {
   getMaterialsByFilenameController,
   getMaterialsByFileTypeController,
   updateMaterialController,
-  deleteMaterialController
+  deleteMaterialController,
+  upload
 } from '../controllers/courseMaterialControllers.js';
 
 const router = express.Router();
 
-// Admin: create course material
-router.post('/create-course-material', authenticate, requireAdmin, createMaterialController);
+// Admin: create course material (with file upload)
+router.post('/create-course-material', authenticate, requireAdmin, upload.single('file'), createMaterialController);
+// Tested and working
 
 // Admin: get all course materials
 router.get('/all-course-materials', authenticate, requireAdmin, getAllMaterialsController);

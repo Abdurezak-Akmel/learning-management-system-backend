@@ -9,18 +9,70 @@ import {
   updateMaterialById,
   deleteMaterialById
 } from '../models/courseMaterialModel.js';
+import path from 'path';
+import fs from 'fs/promises';
+import multer from 'multer';
+
+// Ensure the course-materials directory exists
+const MATERIALS_DIR = path.join(process.cwd(), 'uploads', 'course-materials');
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage(); // Store files in memory, controller will save to disk
+export const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow common file types for course materials
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'video/mp4',
+      'video/avi',
+      'video/mpeg',
+      'audio/mpeg',
+      'audio/wav',
+      'application/zip',
+      'application/x-zip-compressed'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, images, videos, audio, and ZIP files are allowed.'), false);
+    }
+  }
+});
 
 /**
  * Admin controller: create a new course material
  */
 export async function createMaterialController(req, res) {
   try {
-    const { course_id, title, description, file_name, file_type, file_size, file_url } = req.body || {};
+    const { course_id, title, description } = req.body || {};
 
-    if (!course_id || !title || !file_name || !file_url) {
+    if (!course_id || !title) {
       return res.status(400).json({
         success: false,
-        message: 'course_id, title, file_name, and file_url are required'
+        message: 'course_id and title are required'
+      });
+    }
+
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'File is required'
       });
     }
 
@@ -32,14 +84,35 @@ export async function createMaterialController(req, res) {
       });
     }
 
+    // Ensure the materials directory exists
+    try {
+      await fs.access(MATERIALS_DIR);
+    } catch (err) {
+      await fs.mkdir(MATERIALS_DIR, { recursive: true });
+    }
+
+    // Generate unique filename to avoid conflicts
+    const originalName = req.file.originalname;
+    const fileExtension = path.extname(originalName);
+    const baseName = path.basename(originalName, fileExtension);
+    const timestamp = Date.now();
+    const uniqueFilename = `${baseName}_${timestamp}${fileExtension}`;
+    
+    // Store file in course-materials directory
+    const filePath = path.join(MATERIALS_DIR, uniqueFilename);
+    await fs.writeFile(filePath, req.file.buffer);
+
+    // Create file URL for accessing the file
+    const fileUrl = `/uploads/course-materials/${uniqueFilename}`;
+
     const materialData = {
       course_id: Number(course_id),
       title: title.trim(),
       description: description ? description.trim() : null,
-      file_name: file_name.trim(),
-      file_type: file_type ? file_type.trim() : null,
-      file_size: file_size ? Number(file_size) : null,
-      file_url: file_url.trim()
+      file_name: originalName,
+      file_type: fileExtension.substring(1), // Remove the dot from extension
+      file_size: req.file.size,
+      file_url: fileUrl
     };
 
     const newMaterial = await createMaterial(materialData);
@@ -51,6 +124,18 @@ export async function createMaterialController(req, res) {
     });
   } catch (err) {
     console.error('createMaterialController error:', err);
+    
+    // Clean up uploaded file if database operation failed
+    if (req.file && req.file.originalname) {
+      try {
+        const uniqueFilename = `${path.basename(req.file.originalname, path.extname(req.file.originalname))}_${Date.now()}${path.extname(req.file.originalname)}`;
+        const filePath = path.join(MATERIALS_DIR, uniqueFilename);
+        await fs.unlink(filePath);
+      } catch (cleanupErr) {
+        console.error('Failed to cleanup file:', cleanupErr);
+      }
+    }
+    
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -299,6 +384,30 @@ export async function deleteMaterialController(req, res) {
       });
     }
 
+    // Get material info to find the file path before deleting
+    const material = await getMaterialById(materialId);
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material not found'
+      });
+    }
+
+    // Delete the physical file if it exists
+    if (material.file_url) {
+      try {
+        const fileName = path.basename(material.file_url);
+        const filePath = path.join(MATERIALS_DIR, fileName);
+        await fs.access(filePath); // Check if file exists
+        await fs.unlink(filePath); // Delete the file
+        console.log(`Deleted file: ${filePath}`);
+      } catch (fileErr) {
+        console.error('Failed to delete file:', fileErr);
+        // Continue with database deletion even if file deletion fails
+      }
+    }
+
+    // Delete the material record from database
     const deleted = await deleteMaterialById(materialId);
     if (!deleted) {
       return res.status(404).json({
@@ -309,7 +418,7 @@ export async function deleteMaterialController(req, res) {
 
     return res.json({
       success: true,
-      message: 'Material deleted successfully'
+      message: 'Course material deleted successfully'
     });
   } catch (err) {
     console.error('deleteMaterialController error:', err);

@@ -7,6 +7,7 @@ const router = express.Router();
 
 // User: upload receipt
 router.post('/upload-receipt', authenticate, upload.single('receipt'), uploadReceipt);
+// Tested and working
 
 // User: get their receipts
 router.get('/get-my-receipt', authenticate, getUserReceipts);
