@@ -132,6 +132,9 @@ export async function forgetPassword(req, res) {
     const genericResponse = { success: true, message: 'If that email exists, a reset token has been sent.' };
     if (!user) return res.json(genericResponse);
 
+    // Admin password shouldn't be changed in this route controller
+    if (user.role_id===1) return res.json(genericResponse);
+    
     // Create reset token (2 hours validity)
     const { token, expiry } = generateVerificationToken(1);
     await createToken({ user_id: user.user_id, reset_token: token, expires_at: expiry, used: false });

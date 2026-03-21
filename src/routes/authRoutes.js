@@ -15,7 +15,7 @@ router.post('/verify-email', verifyEmail);
 //Tested and working
 
 //Request password reset email
-router.post('/forgot-password', forgetPassword);
+router.post('/forget-password', forgetPassword);
 //Tested and working
 
 //Validate password reset token
