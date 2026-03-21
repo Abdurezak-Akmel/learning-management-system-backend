@@ -15,7 +15,6 @@ import videoRoutes from './routes/videoRoutes.js';
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -46,7 +45,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/receipts', receiptRoutes);
 
 // Role-Course routes
-app.use('api/role-course', roleCourseRoutes);
+app.use('/api/role-course', roleCourseRoutes);
 
 // Role routes
 app.use('/api/roles', roleRoutes);
