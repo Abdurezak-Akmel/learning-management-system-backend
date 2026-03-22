@@ -23,8 +23,6 @@ router.post('/access-requests', authenticate, createAccessRequestController);
 //Get all access requests for the authenticated user
 router.get('/access-requests', authenticate, getUserAccessRequests);
 
-// Admin routes
-
 //Get all access requests with optional filtering (admin only)
 router.get('/admin/access-requests', authenticate, requireAdmin, getAllAccessRequestsController);
 

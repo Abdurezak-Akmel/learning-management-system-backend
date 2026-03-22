@@ -77,6 +77,17 @@ export async function getAllUsers() {
 }
 
 /**
+ * Get users by status.
+ * @param {string} status - The status to filter by (e.g., 'active', 'inactive', 'suspended')
+ * @returns {Promise<Array>} array of users with the specified status
+ */
+export async function getUsersByStatus(status) {
+	const text = `SELECT * FROM "User" WHERE status = $1 ORDER BY user_id`;
+	const res = await query(text, [status]);
+	return res.rows;
+}
+
+/**
  * Update a user by id. Only fields present in `updates` are changed.
  * @param {number} user_id
  * @param {object} updates
@@ -129,6 +140,7 @@ export default {
 	getUserByName,
 	getUserByVerificationToken,
 	getAllUsers,
+	getUsersByStatus,
 	updateUserById,
 	deleteUserById,
 };

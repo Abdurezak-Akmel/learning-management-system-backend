@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import { createReceipt, getReceiptsByUserId } from '../models/receiptModel.js';
+import { createReceipt, getReceiptsByUserId, getAllReceipts } from '../models/receiptModel.js';
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -96,8 +96,31 @@ export async function getUserReceipts(req, res) {
   }
 }
 
+/**
+ * Get all receipts (Admin only)
+ */
+export async function fetchAllReceipts(req, res) {
+  try {
+    const receipts = await getAllReceipts();
+    
+    res.status(200).json({
+      success: true,
+      receipts: receipts,
+      count: receipts.length
+    });
+  } catch (error) {
+    console.error('Error fetching all receipts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching all receipts',
+      error: error.message
+    });
+  }
+}
+
 export default {
   upload,
   uploadReceipt,
-  getUserReceipts
+  getUserReceipts,
+  fetchAllReceipts
 };

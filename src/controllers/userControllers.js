@@ -1,4 +1,4 @@
-import { getAllUsers, updateUserById, deleteUserById, getUserById } from '../models/userModel.js';
+import { getAllUsers, updateUserById, deleteUserById, getUserById, getUsersByStatus } from '../models/userModel.js';
 
 /**
  * Admin controller: return all users.
@@ -110,4 +110,48 @@ export async function fetchUserById(req, res) {
 	}
 }
 
-export default { fetchAllUsers, updateUserByIdController, deleteUser, fetchUserById };
+/**
+ * Controller function to fetch users by status
+ */
+export async function fetchUserByStatus(req, res) {
+	try {
+		const { status } = req.params; // Changed from req.query to req.params for URL parameter
+		
+		// Validate status parameter
+		if (!status || typeof status !== 'string') {
+			return res.status(400).json({ 
+				success: false, 
+				message: 'Status parameter is required and must be a string' 
+			});
+		}
+
+		// Validate allowed status values
+		const allowedStatuses = ['active', 'inactive', 'suspended', 'pending'];
+		if (!allowedStatuses.includes(status.toLowerCase())) {
+			return res.status(400).json({ 
+				success: false, 
+				message: `Invalid status. Allowed values: ${allowedStatuses.join(', ')}` 
+			});
+		}
+
+		const users = await getUsersByStatus(status.toLowerCase());
+		
+		// Remove sensitive fields from response
+		const safe = users.map(u => {
+			const { password_hash, verification_token, verification_token_expiry, ...rest } = u || {};
+			return rest;
+		});
+
+		return res.json({ 
+			success: true, 
+			users: safe,
+			count: safe.length,
+			status: status.toLowerCase()
+		});
+	} catch (err) {
+		console.error('fetchUserByStatus error:', err);
+		return res.status(500).json({ success: false, message: 'Internal server error' });
+	}
+}
+
+export default { fetchAllUsers, updateUserByIdController, deleteUser, fetchUserById, fetchUserByStatus };

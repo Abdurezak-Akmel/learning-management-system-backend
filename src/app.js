@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import accessRequestRoutes from './routes/accessRequestRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import courseMaterialRoutes from './routes/courseMaterialRoutes.js';
@@ -20,8 +19,12 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-
+app.use((req, res, next) => {
+  if (req.headers["content-type"]?.includes("multipart/form-data")) {
+    return next(); // skip JSON parser
+  }
+  express.json()(req, res, next);
+});
 
 // Basic health route
 // app.get('/', (req, res) => {
@@ -35,9 +38,6 @@ app.use('/api/access-requests', accessRequestRoutes);
 // Auth routes
 app.use('/api/auth', authRoutes);
 
-// Course Material routes
-app.use('/api/course-materials', courseMaterialRoutes);
-
 // Course Routes
 app.use('/api/courses', courseRoutes);
 
@@ -46,6 +46,9 @@ app.use('/api/receipts', receiptRoutes);
 
 // Role-Course routes
 app.use('/api/role-course', roleCourseRoutes);
+
+// Course Material routes
+app.use('/api/course-materials', courseMaterialRoutes);
 
 // Role routes
 app.use('/api/roles', roleRoutes);
