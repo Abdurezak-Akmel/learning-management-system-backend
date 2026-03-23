@@ -132,9 +132,6 @@ export async function forgetPassword(req, res) {
     const genericResponse = { success: true, message: 'If that email exists, a reset token has been sent.' };
     if (!user) return res.json(genericResponse);
 
-    // Admin password shouldn't be changed in this route controller
-    if (user.role_id===1) return res.json(genericResponse);
-    
     // Create reset token (2 hours validity)
     const { token, expiry } = generateVerificationToken(1);
     await createToken({ user_id: user.user_id, reset_token: token, expires_at: expiry, used: false });
@@ -234,11 +231,11 @@ export async function login(req, res) {
     // Device-based authentication for non-admin users
     if (user.role_id !== 1) { // Assuming role_id 1 is admin
       const currentDevice = extractDeviceInfo(req.headers['user-agent'] || 'Unknown Device');
-      
+
       if (user.registration_device && user.registration_device !== currentDevice) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'Access denied. You can only login from your registered device for security reasons.' 
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. You can only login from your registered device for security reasons.'
         });
       }
     }
@@ -289,7 +286,7 @@ export async function logout(req, res) {
 export async function refreshToken(req, res) {
   try {
     const { refreshToken: providedRefreshToken } = req.body || {};
-    
+
     if (!providedRefreshToken) {
       return res.status(400).json({ success: false, message: 'Refresh token is required' });
     }
@@ -317,10 +314,10 @@ export async function refreshToken(req, res) {
     const newToken = generateToken(newPayload, '2h');
 
     const { password_hash, verification_token, verification_token_expiry, ...userSafe } = user || {};
-    return res.json({ 
-      success: true, 
-      token: newToken, 
-      user: userSafe 
+    return res.json({
+      success: true,
+      token: newToken,
+      user: userSafe
     });
   } catch (err) {
     console.error('refreshToken error:', err);
@@ -368,7 +365,7 @@ export async function updateProfile(req, res) {
       if (typeof email !== 'string' || email.trim() === '') {
         return res.status(400).json({ success: false, message: 'Email must be a non-empty string' });
       }
-      
+
       // Check if email is already taken by another user
       const existingUser = await getUserByEmail(email.trim());
       if (existingUser && existingUser.user_id !== req.user.user_id) {
@@ -388,10 +385,10 @@ export async function updateProfile(req, res) {
 
     // Remove sensitive fields
     const { password_hash, verification_token, verification_token_expiry, ...userSafe } = updatedUser;
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       message: 'Profile updated successfully',
-      user: userSafe 
+      user: userSafe
     });
   } catch (err) {
     console.error('updateProfile error:', err);
@@ -408,16 +405,16 @@ export async function changePassword(req, res) {
     const { currentPassword, newPassword } = req.body || {};
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Current password and new password are required' 
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required'
       });
     }
 
     if (typeof newPassword !== 'string' || newPassword.length < 6) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'New password must be at least 6 characters long' 
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long'
       });
     }
 
@@ -443,9 +440,9 @@ export async function changePassword(req, res) {
       return res.status(500).json({ success: false, message: 'Failed to update password' });
     }
 
-    return res.json({ 
-      success: true, 
-      message: 'Password changed successfully' 
+    return res.json({
+      success: true,
+      message: 'Password changed successfully'
     });
   } catch (err) {
     console.error('changePassword error:', err);
