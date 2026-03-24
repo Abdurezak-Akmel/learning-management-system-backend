@@ -18,6 +18,7 @@ router.get('/get-user-by-status/:status', authenticate, requireAdmin, fetchUserB
 
 // Admin: update a user
 router.put('/update-user-by-id/:id', authenticate, requireAdmin, updateUserByIdController);
+// Tested and Working
 
 // Admin: delete a user
 router.delete('/delete-user-by-id/:id', authenticate, requireAdmin, deleteUser);

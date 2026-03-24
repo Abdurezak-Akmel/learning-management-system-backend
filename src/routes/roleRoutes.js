@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Admin: get all roles
 router.get('/get-all-roles', authenticate, requireAdmin, getAllRolesController);
+// Tested and working
 
 //Admin: create new role
 router.post('/create-new-role', authenticate, requireAdmin, createRoleController);
