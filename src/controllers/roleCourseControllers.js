@@ -6,7 +6,8 @@ import {
 	getAllRoleCourseAssignments,
 	checkRoleCourseAccess,
 	assignMultipleCoursesToRole,
-	removeMultipleCoursesFromRole
+	removeMultipleCoursesFromRole,
+	removeAllCoursesByRoleId
 } from '../models/roleCourseModel.js';
 
 /**
@@ -313,6 +314,61 @@ export async function removeMultipleCoursesFromRoleController(req, res) {
 	}
 }
 
+/**
+ * Admin controller: sync courses to a role (remove all and re-add)
+ */
+export async function syncCoursesToRoleController(req, res) {
+	try {
+		const { role_id, course_ids } = req.body || {};
+
+		if (!role_id) {
+			return res.status(400).json({
+				success: false,
+				message: 'role_id is required'
+			});
+		}
+
+		if (!Number.isInteger(Number(role_id))) {
+			return res.status(400).json({
+				success: false,
+				message: 'role_id must be a valid integer'
+			});
+		}
+
+		if (!Array.isArray(course_ids)) {
+			return res.status(400).json({
+				success: false,
+				message: 'course_ids must be an array'
+			});
+		}
+
+		// 1. Remove all current assignments
+		await removeAllCoursesByRoleId(Number(role_id));
+
+		// 2. Add new ones if any
+		let assignments = [];
+		if (course_ids.length > 0) {
+			assignments = await assignMultipleCoursesToRole(
+				Number(role_id),
+				course_ids.map(id => Number(id))
+			);
+		}
+
+		return res.json({
+			success: true,
+			message: 'Courses synchronized successfully',
+			assignments
+		});
+	} catch (err) {
+		console.error('syncCoursesToRoleController error:', err);
+		return res.status(500).json({
+			success: false,
+			message: 'Internal server error',
+			error: err.message
+		});
+	}
+}
+
 export default {
 	assignCourseToRoleController,
 	removeCourseFromRoleController,
@@ -320,5 +376,6 @@ export default {
 	getRolesByCourseIdController,
 	getAllRoleCourseAssignmentsController,
 	assignMultipleCoursesToRoleController,
-	removeMultipleCoursesFromRoleController
+	removeMultipleCoursesFromRoleController,
+	syncCoursesToRoleController
 };

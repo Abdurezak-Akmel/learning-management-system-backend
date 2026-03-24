@@ -128,6 +128,17 @@ export async function removeMultipleCoursesFromRole(role_id, course_ids) {
 	return res.rowCount;
 }
 
+/**
+ * Remove all courses assigned to a specific role.
+ * @param {number} role_id
+ * @returns {Promise<number>} number of assignments removed
+ */
+export async function removeAllCoursesByRoleId(role_id) {
+	const text = `DELETE FROM role_course WHERE role_id = $1`;
+	const res = await query(text, [role_id]);
+	return res.rowCount;
+}
+
 export default {
 	assignCourseToRole,
 	removeCourseFromRole,

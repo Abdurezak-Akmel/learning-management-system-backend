@@ -8,7 +8,8 @@ import {
 	getRolesByCourseIdController,
 	getAllRoleCourseAssignmentsController,
 	assignMultipleCoursesToRoleController,
-	removeMultipleCoursesFromRoleController
+	removeMultipleCoursesFromRoleController,
+	syncCoursesToRoleController
 } from '../controllers/roleCourseControllers.js';
 
 const router = express.Router();
@@ -19,8 +20,12 @@ router.post('/assign-course', authenticate, requireAdmin, assignCourseToRoleCont
 // Admin: remove a single course from a role
 router.delete('/remove-course', authenticate, requireAdmin, removeCourseFromRoleController);
 
+// Admin: sync courses to a role
+router.post('/sync-courses', authenticate, requireAdmin, syncCoursesToRoleController);
+
 // Admin: assign multiple courses to a role
 router.post('/assign-multiple-courses', authenticate, requireAdmin, assignMultipleCoursesToRoleController);
+// Tested and working
 
 // Admin: remove multiple courses from a role
 router.delete('/remove-multiple-courses', authenticate, requireAdmin, removeMultipleCoursesFromRoleController);
