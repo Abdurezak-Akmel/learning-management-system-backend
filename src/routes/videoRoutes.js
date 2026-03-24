@@ -6,7 +6,8 @@ import {
   getAllVideosController,
   getVideosByCourseIdController,
   updateVideoController,
-  deleteVideoController
+  deleteVideoController,
+  getVideosByVideoIdController,
 } from '../controllers/videoControllers.js';
 
 const router = express.Router();
@@ -19,6 +20,10 @@ router.get('/get-all-videos', authenticate, requireAdmin, getAllVideosController
 
 // User: get videos by course ID
 router.get('/get-videos/:course_id', authenticate, getVideosByCourseIdController);
+
+// User: get video by ID (optional, can be used for editing)
+router.get('/get-video/:id', authenticate, getVideosByVideoIdController);
+// TEsted and Working
 
 // Admin: update video
 router.put('/update-video/:id', authenticate, requireAdmin, updateVideoController);

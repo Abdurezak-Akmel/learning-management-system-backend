@@ -117,6 +117,38 @@ export async function getVideosByCourseIdController(req, res) {
   }
 }
 
+/*
+  * Controller: get video by ID
+  */
+export async function getVideosByVideoIdController(req, res) {
+  try {
+    const videoId = Number(req.params.id);
+    if (!Number.isInteger(videoId) || videoId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid video ID'
+      });
+    }
+
+    const video = await getVideoById(videoId);
+    if (!video) {
+      return res.status(404).json({
+        success: false,
+        message: 'Video not found'
+      });
+    }
+
+    return res.json({ success: true, video });
+  } catch (err) {
+    console.error('getVideosByVideoIdController error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: err.message
+    });
+  }
+}
+
 /**
  * Admin controller: update video
  */
@@ -236,6 +268,7 @@ export default {
   createVideoController,
   getAllVideosController,
   getVideosByCourseIdController,
+  getVideosByVideoIdController,
   updateVideoController,
   deleteVideoController
 };

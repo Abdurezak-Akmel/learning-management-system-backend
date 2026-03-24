@@ -13,6 +13,7 @@ const router = express.Router();
 
 // Admin: create course
 router.post('/create-course', authenticate, requireAdmin, createCourseController);
+// Tested and Working
 
 // Admin: get all courses
 router.get('/get-all-courses', authenticate, requireAdmin, getAllCoursesController);
@@ -25,5 +26,6 @@ router.put('/update-course/:id', authenticate, requireAdmin, updateCourseControl
 
 // Admin: delete course
 router.delete('/delete-course/:id', authenticate, requireAdmin, deleteCourseController);
+// Tested and Working
 
 export default router;

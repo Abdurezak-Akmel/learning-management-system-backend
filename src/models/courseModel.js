@@ -2,12 +2,12 @@ import { query } from '../config/db.js';
 
 /**
  * Create a new course.
- * @param {{title:string,description?:string,category?:string,level?:string,created_by?:number}} course
+ * @param {{title:string,description?:string,category?:string,level?:string}} course
  * @returns {Promise<object>} inserted course row
  */
 export async function createCourse(course) {
-	const text = `INSERT INTO Course (title, description, category, level, created_by) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
-	const values = [course.title, course.description || null, course.category || null, course.level || null, course.created_by || null];
+	const text = `INSERT INTO Course (title, description, category, level) VALUES ($1,$2,$3,$4) RETURNING *`;
+	const values = [course.title, course.description || null, course.category || null, course.level || null];
 	const res = await query(text, values);
 	return res.rows[0];
 }
@@ -29,9 +29,9 @@ export async function getCourseById(course_id) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getCoursesByTitle(title) {
- 	const text = `SELECT * FROM Course WHERE title = $1 ORDER BY course_id`;
- 	const res = await query(text, [title]);
- 	return res.rows;
+	const text = `SELECT * FROM Course WHERE title = $1 ORDER BY course_id`;
+	const res = await query(text, [title]);
+	return res.rows;
 }
 
 /**
@@ -40,9 +40,9 @@ export async function getCoursesByTitle(title) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getCoursesByCategory(category) {
- 	const text = `SELECT * FROM Course WHERE category = $1 ORDER BY course_id`;
- 	const res = await query(text, [category]);
- 	return res.rows;
+	const text = `SELECT * FROM Course WHERE category = $1 ORDER BY course_id`;
+	const res = await query(text, [category]);
+	return res.rows;
 }
 
 /**
@@ -51,9 +51,9 @@ export async function getCoursesByCategory(category) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getCoursesByLevel(level) {
- 	const text = `SELECT * FROM Course WHERE level = $1 ORDER BY course_id`;
- 	const res = await query(text, [level]);
- 	return res.rows;
+	const text = `SELECT * FROM Course WHERE level = $1 ORDER BY course_id`;
+	const res = await query(text, [level]);
+	return res.rows;
 }
 
 /**
@@ -95,7 +95,7 @@ export async function updateCourseById(course_id, updates) {
 		}
 	}
 
- 	if (set.length === 0) return getCourseById(course_id);
+	if (set.length === 0) return getCourseById(course_id);
 
 	const text = `UPDATE Course SET ${set.join(', ')} WHERE course_id = $${idx} RETURNING *`;
 	values.push(course_id);
@@ -109,20 +109,20 @@ export async function updateCourseById(course_id, updates) {
  * @returns {Promise<boolean>} true if deleted
  */
 export async function deleteCourseById(course_id) {
- 	const text = `DELETE FROM Course WHERE course_id = $1`;
- 	const res = await query(text, [course_id]);
- 	return res.rowCount > 0;
+	const text = `DELETE FROM Course WHERE course_id = $1`;
+	const res = await query(text, [course_id]);
+	return res.rowCount > 0;
 }
 
 export default {
- 	createCourse,
- 	getCourseById,
+	createCourse,
+	getCourseById,
 	getCoursesByTitle,
 	getCoursesByCategory,
 	getCoursesByLevel,
- 	getCoursesByCreator,
- 	getAllCourses,
- 	updateCourseById,
- 	deleteCourseById,
+	getCoursesByCreator,
+	getAllCourses,
+	updateCourseById,
+	deleteCourseById,
 };
 
