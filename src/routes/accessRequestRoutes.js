@@ -1,8 +1,8 @@
 import express from 'express';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { requireAdmin } from '../middleware/adminMiddleware.js';
-import { 
-  createAccessRequestController, 
+import {
+  createAccessRequestController,
   getUserAccessRequests,
   getAllAccessRequestsController,
   getAccessRequestByIdController,
@@ -36,13 +36,13 @@ router.get('/admin/access-requests/course/:course_id', authenticate, requireAdmi
 //Get all access requests by status (admin only)
 router.get('/admin/access-requests/status/:status', authenticate, requireAdmin, getRequestsByStatusController);
 
-//Get a specific access request by ID (admin only)
-router.get('/admin/access-requests/:request_id', authenticate, requireAdmin, getAccessRequestByIdController);
-
 //Update access request status by ID (approve/reject) (admin only)
 router.put('/admin/access-requests/:request_id/status', authenticate, requireAdmin, updateAccessRequestStatusController);
 
 //Delete an access request by ID (admin only)
 router.delete('/admin/access-requests/:request_id', authenticate, requireAdmin, deleteAccessRequestController);
+
+//Get a specific access request by ID (User)
+router.get('/access-requests/:request_id', authenticate, getAccessRequestByIdController);
 
 export default router;

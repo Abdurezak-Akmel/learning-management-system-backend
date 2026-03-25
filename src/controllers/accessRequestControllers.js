@@ -110,7 +110,7 @@ export async function getAllAccessRequestsController(req, res) {
     } else {
       // Get all requests with detailed info
       const text = `
-        SELECT ar.*, u.email, c.title as course_title
+        SELECT ar.*, u.email, u.role_id, c.title as course_title
         FROM AccessRequest ar
         JOIN "User" u ON ar.user_id = u.user_id
         JOIN Course c ON ar.course_id = c.course_id

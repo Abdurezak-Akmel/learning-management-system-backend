@@ -26,30 +26,13 @@ export const upload = multer({
   fileFilter: (req, file, cb) => {
     // Allow common file types for course materials
     const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/plain',
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'video/mp4',
-      'video/avi',
-      'video/mpeg',
-      'audio/mpeg',
-      'audio/wav',
-      'application/zip',
-      'application/x-zip-compressed'
+      'application/pdf'
     ];
     
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, images, videos, audio, and ZIP files are allowed.'), false);
+      cb(new Error('Invalid file type. Only PDF files are allowed.'), false);
     }
   }
 });
