@@ -19,6 +19,7 @@ const router = express.Router();
 
 //Create a new access request for a course (requires authentication)
 router.post('/access-requests', authenticate, createAccessRequestController);
+// Tester and working
 
 //Get all access requests for the authenticated user
 router.get('/access-requests', authenticate, getUserAccessRequests);

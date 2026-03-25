@@ -52,7 +52,7 @@ export async function createCourseController(req, res) {
 }
 
 /**
- * Admin controller: get all courses
+ * User controller: get all courses
  */
 export async function getAllCoursesController(req, res) {
   try {

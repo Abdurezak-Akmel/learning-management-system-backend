@@ -33,10 +33,11 @@ router.delete('/remove-multiple-courses', authenticate, requireAdmin, removeMult
 // Admin: get all role-course assignments
 router.get('/get-all-assignments', authenticate, requireAdmin, getAllRoleCourseAssignmentsController);
 
-// Admin: get all courses assigned to a specific role
-router.get('/role/:role_id/courses', authenticate, requireAdmin, getCoursesByRoleIdController);
-
 // Admin: get all roles assigned to a specific course
 router.get('/course/:course_id/roles', authenticate, requireAdmin, getRolesByCourseIdController);
+
+// User: get all courses assigned to a specific role
+router.get('/role/:role_id/courses', authenticate, getCoursesByRoleIdController);
+// Tested and working
 
 export default router;

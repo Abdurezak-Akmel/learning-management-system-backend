@@ -15,8 +15,8 @@ const router = express.Router();
 router.post('/create-course', authenticate, requireAdmin, createCourseController);
 // Tested and Working
 
-// Admin: get all courses
-router.get('/get-all-courses', authenticate, requireAdmin, getAllCoursesController);
+// User: get all courses
+router.get('/get-all-courses', authenticate, getAllCoursesController);
 
 // User: get course by ID
 router.get('/get-course/:id', authenticate, getCourseByIdController);

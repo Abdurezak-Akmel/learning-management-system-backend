@@ -6,8 +6,8 @@ import { query } from '../config/db.js';
  * @returns {Promise<object>} inserted request row
  */
 export async function createAccessRequest(req) {
-  const text = `INSERT INTO AccessRequest (user_id, course_id, receipt_id, status) VALUES ($1,$2,$3,$4) RETURNING *`;
-  const values = [req.user_id, req.course_id, req.receipt_id || null, req.status || null];
+  const text = `INSERT INTO AccessRequest (user_id, course_id, receipt_id, payment_amount, status) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
+  const values = [req.user_id, req.course_id, req.receipt_id || null, req.payment_amount, req.status || null];
   const res = await query(text, values);
   return res.rows[0];
 }
@@ -71,7 +71,7 @@ export async function getPendingRequests() {
  * Update an access request by id. Only allowed fields provided in `updates` will be changed.
  */
 export async function updateAccessRequestById(request_id, updates) {
-  const allowed = ['user_id', 'course_id', 'receipt_id', 'status', 'requested_at', 'reviewed_at'];
+  const allowed = ['user_id', 'course_id', 'receipt_id', 'payment_amount', 'status', 'requested_at', 'reviewed_at'];
   const set = [];
   const values = [];
   let idx = 1;

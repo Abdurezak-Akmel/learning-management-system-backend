@@ -4,7 +4,7 @@ CREATE TABLE Role (
     description TEXT
 );
 
-INSERT INTO Role (role_name, description) VALUES ('admin', 'full-access');
+INSERT INTO Role (role_name, description) VALUES ('user-01', 'free-access-only');
 
 CREATE TABLE "User" (
     user_id SERIAL PRIMARY KEY,
@@ -21,9 +21,14 @@ CREATE TABLE "User" (
     FOREIGN KEY (role_id) REFERENCES Role(role_id)
 );
 
+INSERT INTO "User" (name, email, password_hash, role_id, status, email_ve)
+
 UPDATE "User"
-SET user_id = 1
-WHERE role_id = 2;
+SET role_id = 2, status = 'active', email_verified = true
+WHERE user_id = 5;
+
+DELETE FROM "User"
+WHERE user_id = 4;
 
 CREATE TABLE Course (
     course_id SERIAL PRIMARY KEY,
@@ -36,9 +41,9 @@ CREATE TABLE Course (
 
 INSERT INTO Course (title, description, category, level)
 VALUES (
-    'Introduction to SQL', 
+    'C++', 
     'Learn the basics of relational databases and queries.', 
-    'Data Science', 
+    'Programming', 
     'Beginner'
 );
 
@@ -94,6 +99,7 @@ CREATE TABLE AccessRequest (
     user_id INT NOT NULL,
     course_id INT NOT NULL,
     receipt_id INT NOT NULL,
+	payment_amount INT NOT NULL,
     status VARCHAR(20),
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reviewed_at TIMESTAMP,

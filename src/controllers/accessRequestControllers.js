@@ -15,12 +15,19 @@ import {
  */
 export async function createAccessRequestController(req, res) {
   try {
-    const { course_id, receipt_id } = req.body;
+    const { course_id, receipt_id, payment_amount } = req.body;
 
     if (!course_id) {
       return res.status(400).json({
         success: false,
         message: 'Course ID is required'
+      });
+    }
+
+    if (payment_amount === undefined || payment_amount === null) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment amount is required'
       });
     }
 
@@ -42,6 +49,7 @@ export async function createAccessRequestController(req, res) {
       user_id: req.user.user_id,
       course_id,
       receipt_id: receipt_id || null,
+      payment_amount,
       status: 'pending'
     };
 
@@ -100,8 +108,14 @@ export async function getAllAccessRequestsController(req, res) {
     } else if (user_id) {
       accessRequests = await getRequestsByUserId(Number(user_id));
     } else {
-      // Get all requests with a direct query
-      const text = `SELECT * FROM AccessRequest ORDER BY requested_at DESC`;
+      // Get all requests with detailed info
+      const text = `
+        SELECT ar.*, u.email, c.title as course_title
+        FROM AccessRequest ar
+        JOIN "User" u ON ar.user_id = u.user_id
+        JOIN Course c ON ar.course_id = c.course_id
+        ORDER BY ar.requested_at DESC
+      `;
       const res = await query(text);
       accessRequests = res.rows;
     }
