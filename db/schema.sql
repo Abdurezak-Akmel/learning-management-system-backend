@@ -4,7 +4,10 @@ CREATE TABLE Role (
     description TEXT
 );
 
-INSERT INTO Role (role_name, description) VALUES ('user-01', 'free-access-only');
+-- Role must be injected first
+INSERT INTO Role (role_name, description) VALUES ('Admin', 'full access');
+INSERT INTO Role (role_name, description) VALUES ('Role-01', 'Access to free courses only');
+
 
 CREATE TABLE "User" (
     user_id SERIAL PRIMARY KEY,
@@ -21,14 +24,14 @@ CREATE TABLE "User" (
     FOREIGN KEY (role_id) REFERENCES Role(role_id)
 );
 
-INSERT INTO "User" (name, email, password_hash, role_id, status, email_ve)
 
-UPDATE "User"
-SET role_id = 2, status = 'active', email_verified = true
-WHERE user_id = 5;
+-- Admin Credentials
+-- Email: admin@tms.com
+-- Password: admin123
+-- Make sure referenced role exists in the database
+INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, registration_device)
+VALUES ('System Admin', 'admin@tms.com', '$2b$10$g9UFpczmEXxNFe97q077h..1PguNgDHpN9LD9FvEBlwTdfjBG/ZFG', 1, 'active', true, 'Admin Device')
 
-DELETE FROM "User"
-WHERE user_id = 4;
 
 CREATE TABLE Course (
     course_id SERIAL PRIMARY KEY,
@@ -39,13 +42,6 @@ CREATE TABLE Course (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO Course (title, description, category, level)
-VALUES (
-    'C++', 
-    'Learn the basics of relational databases and queries.', 
-    'Programming', 
-    'Beginner'
-);
 
 CREATE TABLE role_course (
     role_id INT NOT NULL,
@@ -55,6 +51,7 @@ CREATE TABLE role_course (
     FOREIGN KEY (role_id) REFERENCES Role(role_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES Course(course_id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE Video (
     video_id SERIAL PRIMARY KEY,
@@ -68,6 +65,7 @@ CREATE TABLE Video (
     updated_at TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
+
 
 CREATE TABLE course_material (
     material_id SERIAL PRIMARY KEY,
@@ -85,6 +83,7 @@ CREATE TABLE course_material (
         ON DELETE CASCADE
 );
 
+
 CREATE TABLE Receipt (
     receipt_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -93,6 +92,7 @@ CREATE TABLE Receipt (
     status VARCHAR(20),
     FOREIGN KEY (user_id) REFERENCES "User"(user_id)
 );
+
 
 CREATE TABLE AccessRequest (
     request_id SERIAL PRIMARY KEY,
@@ -108,6 +108,7 @@ CREATE TABLE AccessRequest (
     FOREIGN KEY (receipt_id) REFERENCES Receipt(receipt_id)
 );
 
+
 CREATE TABLE password_reset_tokens (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -121,5 +122,3 @@ CREATE TABLE password_reset_tokens (
         REFERENCES "User"(user_id)
         ON DELETE CASCADE
 );
-
-TRUNCATE TABLE "password_reset_tokens" RESTART IDENTITY;
