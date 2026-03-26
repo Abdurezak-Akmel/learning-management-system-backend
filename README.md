@@ -213,14 +213,14 @@ The API uses consistent error response format:
 ### Course Materials
 
 - **Endpoint**: `POST /api/course-materials/create-course-material`
-- **File Types**: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, images, videos, audio, ZIP
+- **File Types**: PDF
 - **Size Limit**: 10MB
 - **Storage**: `uploads/course-materials/` directory
 
 ### Receipts
 
 - **Endpoint**: `POST /api/receipts/upload-receipt`
-- **File Types**: Images, PDFs
+- **File Types**: PDFs
 - **Size Limit**: 1MB
 - **Storage**: `uploads/receipts/` directory
 
@@ -283,7 +283,7 @@ NODE_ENV=development
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone <https://github.com/Abdurezak-Akmel/tms-backend.git>
 cd tms-backend
 
 # Install dependencies
@@ -346,18 +346,6 @@ curl -X POST http://localhost:3000/api/course-materials/create-course-material \
 
 The API includes comprehensive error handling and validation. Test endpoints are marked with "Tested and working" comments in the route files.
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, please contact the development team or create an issue in the repository.
+Developed with ❤️ by Abdurezak Akmel from HabeshaTech Team.
