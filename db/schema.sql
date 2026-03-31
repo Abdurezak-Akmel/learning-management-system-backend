@@ -39,6 +39,7 @@ CREATE TABLE Course (
     description TEXT,
     category VARCHAR(100),
     level VARCHAR(50),
+    price VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -88,6 +89,7 @@ CREATE TABLE Receipt (
     receipt_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     file_path TEXT NOT NULL,
+    file_size INT,
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20),
     FOREIGN KEY (user_id) REFERENCES "User"(user_id)
@@ -122,3 +124,29 @@ CREATE TABLE password_reset_tokens (
         REFERENCES "User"(user_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE landing_videos (
+    land_video_id SERIAL PRIMARY KEY,
+    title VARCHAR(255),
+    description TEXT,
+    youtube_url TEXT NOT NULL,
+    order_index INT,
+    duration INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE projects (
+    project_id SERIAL PRIMARY KEY,
+    title VARCHAR(255),
+    description TEXT,
+    category VARCHAR(100),
+    level VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE faqs (
+    faqs_id SERIAL PRIMARY KEY,
+    question TEXT,
+    answer TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)

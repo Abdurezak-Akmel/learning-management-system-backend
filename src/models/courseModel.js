@@ -2,12 +2,12 @@ import { query } from '../config/db.js';
 
 /**
  * Create a new course.
- * @param {{title:string,description?:string,category?:string,level?:string}} course
+ * @param {{title:string,description?:string,category?:string,level?:string,price:string}} course
  * @returns {Promise<object>} inserted course row
  */
 export async function createCourse(course) {
-	const text = `INSERT INTO Course (title, description, category, level) VALUES ($1,$2,$3,$4) RETURNING *`;
-	const values = [course.title, course.description || null, course.category || null, course.level || null];
+	const text = `INSERT INTO Course (title, description, category, level, price) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
+	const values = [course.title, course.description || null, course.category || null, course.level || null, course.price];
 	const res = await query(text, values);
 	return res.rows[0];
 }
@@ -87,7 +87,7 @@ export async function updateCourseById(course_id, updates) {
 	const set = [];
 	const values = [];
 	let idx = 1;
-	const allowed = ['title', 'description', 'category', 'level', 'created_by'];
+	const allowed = ['title', 'description', 'category', 'level', 'price', 'created_by'];
 	for (const key of allowed) {
 		if (Object.prototype.hasOwnProperty.call(updates, key)) {
 			set.push(`${key} = $${idx++}`);

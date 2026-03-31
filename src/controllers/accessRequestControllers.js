@@ -97,28 +97,42 @@ export async function getUserAccessRequests(req, res) {
 export async function getAllAccessRequestsController(req, res) {
   try {
     const { status, course_id, user_id } = req.query;
-    let accessRequests;
+    
+    let baseQuery = `
+      SELECT ar.*, u.email, u.role_id, c.title as course_title, r.file_path as receipt_file_path
+      FROM AccessRequest ar
+      JOIN "User" u ON ar.user_id = u.user_id
+      JOIN Course c ON ar.course_id = c.course_id
+      LEFT JOIN Receipt r ON ar.receipt_id = r.receipt_id
+    `;
+    
+    const conditions = [];
+    const values = [];
+    let paramIdx = 1;
 
-    if (status === 'pending') {
-      accessRequests = await getPendingRequests();
-    } else if (status) {
-      accessRequests = await getRequestsByStatus(status);
-    } else if (course_id) {
-      accessRequests = await getRequestsByCourseId(Number(course_id));
-    } else if (user_id) {
-      accessRequests = await getRequestsByUserId(Number(user_id));
-    } else {
-      // Get all requests with detailed info
-      const text = `
-        SELECT ar.*, u.email, u.role_id, c.title as course_title
-        FROM AccessRequest ar
-        JOIN "User" u ON ar.user_id = u.user_id
-        JOIN Course c ON ar.course_id = c.course_id
-        ORDER BY ar.requested_at DESC
-      `;
-      const res = await query(text);
-      accessRequests = res.rows;
+    if (status) {
+      conditions.push(`ar.status = $${paramIdx++}`);
+      values.push(status);
     }
+    
+    if (course_id) {
+      conditions.push(`ar.course_id = $${paramIdx++}`);
+      values.push(Number(course_id));
+    }
+    
+    if (user_id) {
+      conditions.push(`ar.user_id = $${paramIdx++}`);
+      values.push(Number(user_id));
+    }
+
+    if (conditions.length > 0) {
+      baseQuery += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    baseQuery += ` ORDER BY ar.requested_at DESC`;
+
+    const result = await query(baseQuery, values);
+    const accessRequests = result.rows;
 
     res.status(200).json({
       success: true,

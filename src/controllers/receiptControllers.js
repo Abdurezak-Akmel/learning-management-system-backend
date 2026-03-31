@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import { createReceipt, getReceiptsByUserId, getAllReceipts } from '../models/receiptModel.js';
+import { createReceipt, getReceiptsByUserId, getAllReceipts, getReceiptById as getReceiptByIdModel } from '../models/receiptModel.js';
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -41,15 +41,16 @@ export const upload = multer({
 export async function uploadReceipt(req, res) {
   try {
     if (!req.file) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'No file uploaded' 
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
       });
     }
 
     const receiptData = {
       user_id: req.user.user_id,
       file_path: req.file.filename,
+      file_size: req.file.size,
       status: 'pending'
     };
 
@@ -62,7 +63,8 @@ export async function uploadReceipt(req, res) {
         receipt_id: receipt.receipt_id,
         file_path: receipt.file_path,
         upload_date: receipt.upload_date,
-        status: receipt.status
+        status: receipt.status,
+        file_size: receipt.file_size
       }
     });
   } catch (error) {
@@ -81,7 +83,7 @@ export async function uploadReceipt(req, res) {
 export async function getUserReceipts(req, res) {
   try {
     const receipts = await getReceiptsByUserId(req.user.user_id);
-    
+
     res.status(200).json({
       success: true,
       data: receipts
@@ -102,7 +104,7 @@ export async function getUserReceipts(req, res) {
 export async function fetchAllReceipts(req, res) {
   try {
     const receipts = await getAllReceipts();
-    
+
     res.status(200).json({
       success: true,
       receipts: receipts,
@@ -118,9 +120,47 @@ export async function fetchAllReceipts(req, res) {
   }
 }
 
+/**
+ * Get a single receipt by ID
+ */
+export async function getReceiptById(req, res) {
+  try {
+    const { id } = req.params;
+    const receipt = await getReceiptByIdModel(id);
+
+    if (!receipt) {
+      return res.status(404).json({
+        success: false,
+        message: 'Receipt not found'
+      });
+    }
+
+    // Check if the user is an admin or the owner of the receipt
+    if (req.user.user_role !== 'admin' && receipt.user_id !== req.user.user_id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized access to this receipt'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: receipt
+    });
+  } catch (error) {
+    console.error('Error fetching receipt by ID:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching receipt',
+      error: error.message
+    });
+  }
+}
+
 export default {
   upload,
   uploadReceipt,
   getUserReceipts,
-  fetchAllReceipts
+  fetchAllReceipts,
+  getReceiptById
 };

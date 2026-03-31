@@ -15,9 +15,6 @@ const router = express.Router();
 router.post('/create-course', authenticate, requireAdmin, createCourseController);
 // Tested and Working
 
-// User: get all courses
-router.get('/get-all-courses', authenticate, getAllCoursesController);
-
 // User: get course by ID
 router.get('/get-course/:id', authenticate, getCourseByIdController);
 
@@ -27,5 +24,8 @@ router.put('/update-course/:id', authenticate, requireAdmin, updateCourseControl
 // Admin: delete course
 router.delete('/delete-course/:id', authenticate, requireAdmin, deleteCourseController);
 // Tested and Working
+
+// Public: get all courses
+router.get('/get-all-courses', getAllCoursesController);
 
 export default router;

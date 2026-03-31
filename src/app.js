@@ -6,11 +6,14 @@ import accessRequestRoutes from './routes/accessRequestRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import courseMaterialRoutes from './routes/courseMaterialRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
+import landingVideoRoutes from './routes/landingVideoRoutes.js'
 import receiptRoutes from './routes/receiptRoutes.js';
 import roleCourseRoutes from './routes/roleCourseRoutes.js';
 import roleRoutes from './routes/roleRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import faqRoutes from './routes/faqRoutes.js';
 
 import path from 'path';
 
@@ -46,6 +49,15 @@ app.use('/api/auth', authRoutes);
 
 // Course Routes
 app.use('/api/courses', courseRoutes);
+
+// Course Routes
+app.use('/api/faqs', faqRoutes);
+
+// Landing Video Routes
+app.use('/api/landing-videos', landingVideoRoutes);
+
+// Project Routes
+app.use('/api/projects', projectRoutes);
 
 // Receipt routes
 app.use('/api/receipts', receiptRoutes);

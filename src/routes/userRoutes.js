@@ -9,9 +9,6 @@ const router = express.Router();
 router.get('/get-all-users', authenticate, requireAdmin, fetchAllUsers);
 // Tested and working
 
-//Admin: get user by id
-router.get('/get-user-by-id/:id', authenticate, requireAdmin, fetchUserById);
-
 //Admin: get user by status
 router.get('/get-user-by-status/:status', authenticate, requireAdmin, fetchUserByStatus);
 // Tested and working
@@ -22,5 +19,8 @@ router.put('/update-user-by-id/:id', authenticate, requireAdmin, updateUserByIdC
 
 // Admin: delete a user
 router.delete('/delete-user-by-id/:id', authenticate, requireAdmin, deleteUser);
+
+//User: get user by id
+router.get('/get-user-by-id/:id', authenticate, fetchUserById);
 
 export default router;

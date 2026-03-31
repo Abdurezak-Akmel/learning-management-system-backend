@@ -6,8 +6,8 @@ import { query } from '../config/db.js';
  * @returns {Promise<object>} inserted receipt row
  */
 export async function createReceipt(receipt) {
-  const text = `INSERT INTO Receipt (user_id, file_path, status) VALUES ($1,$2,$3) RETURNING *`;
-  const values = [receipt.user_id, receipt.file_path, receipt.status || null];
+  const text = `INSERT INTO Receipt (user_id, file_path, status, file_size) VALUES ($1,$2,$3,$4) RETURNING *`;
+  const values = [receipt.user_id, receipt.file_path, receipt.status || null, receipt.file_size || null];
   const res = await query(text, values);
   return res.rows[0];
 }
@@ -59,7 +59,7 @@ export async function getAllReceipts() {
  * Update a receipt by id. Only provided fields will be updated.
  */
 export async function updateReceiptById(receipt_id, updates) {
-  const allowed = ['user_id', 'file_path', 'status', 'upload_date'];
+  const allowed = ['user_id', 'file_path', 'status', 'upload_date', 'file_size'];
   const set = [];
   const values = [];
   let idx = 1;
