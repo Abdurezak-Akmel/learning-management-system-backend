@@ -26,11 +26,11 @@ CREATE TABLE "User" (
 
 
 -- Admin Credentials
--- Email: admin@tms.com
+-- Email: habeshatech16@gmail.com
 -- Password: admin123
 -- Make sure referenced role exists in the database
 INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, registration_device)
-VALUES ('System Admin', 'admin@tms.com', '$2b$10$g9UFpczmEXxNFe97q077h..1PguNgDHpN9LD9FvEBlwTdfjBG/ZFG', 1, 'active', true, 'Admin Device')
+VALUES ('System Admin', 'habeshatech16@gmail.com', '$2b$10$g9UFpczmEXxNFe97q077h..1PguNgDHpN9LD9FvEBlwTdfjBG/ZFG', 1, 'active', true, 'Admin Device');
 
 
 CREATE TABLE Course (
@@ -43,6 +43,14 @@ CREATE TABLE Course (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO Course (title, description, category, level, price)
+VALUES (
+    'Fundamental of Web Development', 
+    'Learn the basics of wbe developmenet with HTML, CSS, and Basic Javascript.', 
+    'Web Development', 
+    'Beginner', 
+    'free'
+);
 
 CREATE TABLE role_course (
     role_id INT NOT NULL,
@@ -53,6 +61,8 @@ CREATE TABLE role_course (
     FOREIGN KEY (course_id) REFERENCES Course(course_id) ON DELETE CASCADE
 );
 
+INSERT INTO role_course (role_id, course_id)
+VALUES (2, 1);
 
 CREATE TABLE Video (
     video_id SERIAL PRIMARY KEY,
@@ -133,7 +143,7 @@ CREATE TABLE landing_videos (
     order_index INT,
     duration INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE projects (
     project_id SERIAL PRIMARY KEY,
@@ -142,11 +152,11 @@ CREATE TABLE projects (
     category VARCHAR(100),
     level VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE faqs (
     faqs_id SERIAL PRIMARY KEY,
     question TEXT,
     answer TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);

@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
-import { createReceipt, getReceiptsByUserId, getAllReceipts, getReceiptById as getReceiptByIdModel } from '../models/receiptModel.js';
+import fs from 'fs';
+import { createReceipt, getReceiptsByUserId, getAllReceipts, getReceiptById as getReceiptByIdModel, deleteReceiptById } from '../models/receiptModel.js';
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -157,10 +158,56 @@ export async function getReceiptById(req, res) {
   }
 }
 
+/**
+ * Delete a receipt by ID (Admin only)
+ */
+export async function deleteReceiptByIdController(req, res) {
+  try {
+    const { id } = req.params;
+    
+    // 1. Get receipt details to find the file path
+    const receipt = await getReceiptByIdModel(id);
+    
+    if (!receipt) {
+      return res.status(404).json({
+        success: false,
+        message: 'Receipt not found'
+      });
+    }
+
+    // 2. Delete the physical file
+    if (receipt.file_path) {
+      const filePath = path.join('uploads', 'receipts', receipt.file_path);
+      try {
+        await fs.promises.unlink(filePath);
+      } catch (err) {
+        console.error(`Failed to delete file at ${filePath}:`, err);
+        // Continue even if file delete fails (maybe file already gone)
+      }
+    }
+
+    // 3. Delete the database record
+    await deleteReceiptById(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Receipt deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting receipt:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting receipt',
+      error: error.message
+    });
+  }
+}
+
 export default {
   upload,
   uploadReceipt,
   getUserReceipts,
   fetchAllReceipts,
-  getReceiptById
+  getReceiptById,
+  deleteReceiptByIdController
 };
