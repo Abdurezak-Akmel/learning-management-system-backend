@@ -1,15 +1,18 @@
-CREATE TABLE Role (
+-- CREATE DATABASE tms;
+
+CREATE TABLE IF NOT EXISTS Role (
     role_id SERIAL PRIMARY KEY,
     role_name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT
 );
 
 -- Role must be injected first
-INSERT INTO Role (role_name, description) VALUES ('Admin', 'full access');
-INSERT INTO Role (role_name, description) VALUES ('Role-01', 'Access to free courses only');
+INSERT INTO Role (role_name, description) 
+VALUES ('Admin', 'full access'), ('Role-01', 'Access to free courses only')
+ON CONFLICT (role_name) DO NOTHING;
 
 
-CREATE TABLE "User" (
+CREATE TABLE IF NOT EXISTS "User" (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -24,16 +27,20 @@ CREATE TABLE "User" (
     FOREIGN KEY (role_id) REFERENCES Role(role_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_user_role_id ON "User" (role_id);
+CREATE INDEX IF NOT EXISTS idx_user_email ON "User" (email);
+
 
 -- Admin Credentials
 -- Email: habeshatech16@gmail.com
 -- Password: admin123
 -- Make sure referenced role exists in the database
 INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, registration_device)
-VALUES ('System Admin', 'habeshatech16@gmail.com', '$2b$10$g9UFpczmEXxNFe97q077h..1PguNgDHpN9LD9FvEBlwTdfjBG/ZFG', 1, 'active', true, 'Admin Device');
+VALUES ('System Admin', 'abduakmel16@gmail.com', '$2b$10$g9UFpczmEXxNFe97q077h..1PguNgDHpN9LD9FvEBlwTdfjBG/ZFG', 1, 'active', true, 'Admin Device')
+ON CONFLICT (email) DO NOTHING;
 
 
-CREATE TABLE Course (
+CREATE TABLE IF NOT EXISTS Course (
     course_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -43,16 +50,20 @@ CREATE TABLE Course (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX IF NOT EXISTS idx_course_category ON Course (category);
+CREATE INDEX IF NOT EXISTS idx_course_level ON Course (level);
+
 INSERT INTO Course (title, description, category, level, price)
 VALUES (
     'Fundamental of Web Development', 
     'Learn the basics of wbe developmenet with HTML, CSS, and Basic Javascript.', 
     'Web Development', 
     'Beginner', 
-    'free'
-);
+    'Free'
+)
+ON CONFLICT DO NOTHING; -- Note: Course doesn't have a unique constraint on title here, but often wanted
 
-CREATE TABLE role_course (
+CREATE TABLE IF NOT EXISTS role_course (
     role_id INT NOT NULL,
     course_id INT NOT NULL,
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -62,9 +73,10 @@ CREATE TABLE role_course (
 );
 
 INSERT INTO role_course (role_id, course_id)
-VALUES (2, 1);
+VALUES (2, 1)
+ON CONFLICT DO NOTHING;
 
-CREATE TABLE Video (
+CREATE TABLE IF NOT EXISTS Video (
     video_id SERIAL PRIMARY KEY,
     course_id INT NOT NULL,
     title VARCHAR(255),
@@ -77,8 +89,10 @@ CREATE TABLE Video (
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_video_course_id ON Video (course_id);
 
-CREATE TABLE course_material (
+
+CREATE TABLE IF NOT EXISTS course_material (
     material_id SERIAL PRIMARY KEY,
     course_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -94,8 +108,10 @@ CREATE TABLE course_material (
         ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS idx_material_course_id ON course_material (course_id);
 
-CREATE TABLE Receipt (
+
+CREATE TABLE IF NOT EXISTS Receipt (
     receipt_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     file_path TEXT NOT NULL,
@@ -105,8 +121,10 @@ CREATE TABLE Receipt (
     FOREIGN KEY (user_id) REFERENCES "User"(user_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_receipt_user_id ON Receipt (user_id);
 
-CREATE TABLE AccessRequest (
+
+CREATE TABLE IF NOT EXISTS AccessRequest (
     request_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     course_id INT NOT NULL,
@@ -120,8 +138,11 @@ CREATE TABLE AccessRequest (
     FOREIGN KEY (receipt_id) REFERENCES Receipt(receipt_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_access_request_user_id ON AccessRequest (user_id);
+CREATE INDEX IF NOT EXISTS idx_access_request_course_id ON AccessRequest (course_id);
 
-CREATE TABLE password_reset_tokens (
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     reset_token TEXT NOT NULL,
@@ -135,7 +156,10 @@ CREATE TABLE password_reset_tokens (
         ON DELETE CASCADE
 );
 
-CREATE TABLE landing_videos (
+CREATE INDEX IF NOT EXISTS idx_password_reset_user_id ON password_reset_tokens (user_id);
+
+
+CREATE TABLE IF NOT EXISTS landing_videos (
     land_video_id SERIAL PRIMARY KEY,
     title VARCHAR(255),
     description TEXT,
@@ -145,7 +169,9 @@ CREATE TABLE landing_videos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE projects (
+CREATE INDEX IF NOT EXISTS idx_landing_videos_order ON landing_videos (order_index);
+
+CREATE TABLE IF NOT EXISTS projects (
     project_id SERIAL PRIMARY KEY,
     title VARCHAR(255),
     description TEXT,
@@ -154,7 +180,9 @@ CREATE TABLE projects (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE faqs (
+CREATE INDEX IF NOT EXISTS idx_projects_category ON projects (category);
+
+CREATE TABLE IF NOT EXISTS faqs (
     faqs_id SERIAL PRIMARY KEY,
     question TEXT,
     answer TEXT,
