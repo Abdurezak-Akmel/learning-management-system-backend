@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
+import path from 'path';
+
 import accessRequestRoutes from './routes/accessRequestRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import courseMaterialRoutes from './routes/courseMaterialRoutes.js';
@@ -14,8 +16,6 @@ import userRoutes from './routes/userRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import faqRoutes from './routes/faqRoutes.js';
-
-import path from 'path';
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);

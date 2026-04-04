@@ -229,7 +229,7 @@ export async function login(req, res) {
     }
 
     // Device-based authentication for non-admin users
-    if (user.role_id !== 1) { // Assuming role_id 1 is admin
+    if (user.role_id !== process.env.ADMIN_ROLE_ID) { 
       const currentDevice = extractDeviceInfo(req.headers['user-agent'] || 'Unknown Device');
 
       if (user.registration_device && user.registration_device !== currentDevice) {
