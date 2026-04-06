@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS Role (
 
 -- Role must be injected first
 INSERT INTO Role (role_name, description) 
-VALUES ('Admin', 'full access'), ('Role-01', 'Access to free courses only')
+VALUES ('Admin', 'full access'), ('Role_01', 'Access to free courses only')
 ON CONFLICT (role_name) DO NOTHING;
 
 
