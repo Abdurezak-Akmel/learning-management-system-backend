@@ -13,12 +13,18 @@ let transporter = null;
 if (SMTP_HOST && SMTP_USER) {
   transporter = nodemailer.createTransport({
     host: SMTP_HOST,
-    port: SMTP_PORT ? Number(SMTP_PORT) : 587,
-    secure: SMTP_PORT ? Number(SMTP_PORT) === 465 : false,
+    port: Number(SMTP_PORT) || 587,
+    secure: Number(SMTP_PORT) === 465, // true for port 465, false for others
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS,
     },
+    // Useful for cloud deployments where connections might be flaky
+    connectionTimeout: 10000, // 10 seconds
+    tls: {
+      // Do not fail on invalid certs (common requirement for some SMTP setups)
+      rejectUnauthorized: false
+    }
   });
 }
 
