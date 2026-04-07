@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import bcrypt from 'bcrypt';
+import pool from './config/db.js';
 
 import accessRequestRoutes from './routes/accessRequestRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -35,53 +37,52 @@ app.use((req, res, next) => {
   express.json()(req, res, next);
 });
 
-// Basic health route
-// app.get('/', (req, res) => {
-//   res.json({ status: 'ok', message: 'TMS backend running' });
-// });
-
-
-// Access request routes
+// Routes
 app.use('/api/access-requests', accessRequestRoutes);
-
-// Auth routes
 app.use('/api/auth', authRoutes);
-
-// Course Routes
 app.use('/api/courses', courseRoutes);
-
-// Course Routes
 app.use('/api/faqs', faqRoutes);
-
-// Landing Video Routes
 app.use('/api/landing-videos', landingVideoRoutes);
-
-// Project Routes
 app.use('/api/projects', projectRoutes);
-
-// Receipt routes
 app.use('/api/receipts', receiptRoutes);
-
-// Role-Course routes
 app.use('/api/role-course', roleCourseRoutes);
-
-// Course Material routes
 app.use('/api/course-materials', courseMaterialRoutes);
-
-// Role routes
 app.use('/api/roles', roleRoutes);
-
-// User routes (includes admin endpoints)
 app.use('/api/users', userRoutes);
-
-// Video routes
 app.use('/api/videos', videoRoutes);
 
-// If this file is run directly, start the server. When required (for tests), only export the app.
+/**
+ * Seeding Logic: Creates a default admin if none exists
+ */
+const seedAdmin = async () => {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@tms.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123!';
+    const adminRoleId = Number(process.env.ADMIN_ROLE_ID) || 1;
+
+    // Check if any admin exists (adjust query based on your schema)
+    const { rows } = await pool.query('SELECT * FROM "User" WHERE email = $1', [adminEmail]);
+
+    if (rows.length === 0) {
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      await pool.query(
+        'INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, registration_device) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        ['System Admin', adminEmail, hashedPassword, adminRoleId, 'active', true, 'Admin Device']
+      );
+      console.log(`Admin user seeded: ${adminEmail}`);
+    }
+  } catch (error) {
+    console.error('Error seeding admin:', error.message);
+  }
+};
+
+// If this file is run directly, start the server.
 if (process.argv[1] === __filename) {
-  app.listen(PORT, () => {
-    // eslint-disable-next-line no-console
+  app.listen(PORT, async () => {
     console.log(`Server listening on port ${PORT}`);
+
+    // Run the seed function on startup
+    await seedAdmin();
   });
 }
 

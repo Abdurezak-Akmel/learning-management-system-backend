@@ -39,23 +39,13 @@ export async function createVideoController(req, res) {
       }
     }
 
-    // Validate duration if provided
-    if (duration !== undefined) {
-      if (!Number.isInteger(Number(duration))) {
-        return res.status(400).json({
-          success: false,
-          message: 'duration must be a valid integer'
-        });
-      }
-    }
-
     const videoData = {
       course_id: Number(course_id),
       title: title ? title.trim() : null,
       description: description ? description.trim() : null,
       youtube_url: youtube_url.trim(),
       order_index: order_index ? Number(order_index) : null,
-      duration: duration ? Number(duration) : null
+      duration: duration
     };
 
     const newVideo = await createVideo(videoData);

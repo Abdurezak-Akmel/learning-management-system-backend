@@ -2,12 +2,12 @@ import { query } from '../config/db.js';
 
 /**
  * Create a new course.
- * @param {{title:string,description?:string,category?:string,level?:string,price:string}} course
+ * @param {{title:string,description?:string,category?:string,level?:string,price:string,duration:string}} course
  * @returns {Promise<object>} inserted course row
  */
 export async function createCourse(course) {
-	const text = `INSERT INTO Course (title, description, category, level, price) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
-	const values = [course.title, course.description || null, course.category || null, course.level || null, course.price];
+	const text = `INSERT INTO Course (title, description, category, level, price, duration) VALUES ($1,$2,$3,$4,$5, $6) RETURNING *`;
+	const values = [course.title, course.description, course.category, course.level, course.price, course.duration];
 	const res = await query(text, values);
 	return res.rows[0];
 }
@@ -57,17 +57,6 @@ export async function getCoursesByLevel(level) {
 }
 
 /**
- * Get courses created by a specific user.
- * @param {number} user_id
- * @returns {Promise<Array>} array of courses
- */
-export async function getCoursesByCreator(user_id) {
-	const text = `SELECT * FROM Course WHERE created_by = $1 ORDER BY course_id`;
-	const res = await query(text, [user_id]);
-	return res.rows;
-}
-
-/**
  * Get all courses.
  * @returns {Promise<Array>} array of courses
  */
@@ -87,7 +76,7 @@ export async function updateCourseById(course_id, updates) {
 	const set = [];
 	const values = [];
 	let idx = 1;
-	const allowed = ['title', 'description', 'category', 'level', 'price', 'created_by'];
+	const allowed = ['title', 'description', 'category', 'level', 'price', 'duration', 'created_by'];
 	for (const key of allowed) {
 		if (Object.prototype.hasOwnProperty.call(updates, key)) {
 			set.push(`${key} = $${idx++}`);
@@ -120,7 +109,6 @@ export default {
 	getCoursesByTitle,
 	getCoursesByCategory,
 	getCoursesByLevel,
-	getCoursesByCreator,
 	getAllCourses,
 	updateCourseById,
 	deleteCourseById,

@@ -5,7 +5,7 @@ import { createToken, getValidTokenByResetToken, markTokenUsed, deleteTokensByUs
 import { generateVerificationToken, isTokenExpired } from '../utils/token.js';
 import { sendVerificationEmail, sendEmail } from '../utils/email.js';
 import { generateToken, verifyToken } from '../utils/jwt.js';
-import { extractDeviceInfo } from '../utils/device.js';
+import { generateDevice, verifyDevice } from '../utils/device.js';
 
 /**
  * Register a new user.
@@ -27,7 +27,7 @@ export async function register(req, res) {
 
     // Extract device information from request headers
     const userAgent = req.headers['user-agent'] || 'Unknown Device';
-    const registration_device = extractDeviceInfo(userAgent);
+    const registration_device = generateDevice(userAgent);
 
     // Check if email already exists
     const existing = await getUserByEmail(email);
@@ -229,10 +229,10 @@ export async function login(req, res) {
     }
 
     // Device-based authentication for non-admin users
-    if (user.role_id !== process.env.ADMIN_ROLE_ID) { 
-      const currentDevice = extractDeviceInfo(req.headers['user-agent'] || 'Unknown Device');
+    if (user.role_id !== Number(process.env.ADMIN_ROLE_ID)) {
+      const currentDevice = generateDevice(req.headers['user-agent'] || 'Unknown Device');
 
-      if (user.registration_device && user.registration_device !== currentDevice) {
+      if (!verifyDevice(currentDevice, user.registration_device)) {
         return res.status(403).json({
           success: false,
           message: 'Access denied. You can only login from your registered device for security reasons.'

@@ -11,8 +11,8 @@ import {
  */
 export async function createCourseController(req, res) {
   try {
-    const { title, description, category, level, price } = req.body || {};
-  
+    const { title, description, category, level, price, duration } = req.body || {};
+
     if (!title || title.trim() === '') {
       return res.status(400).json({
         success: false,
@@ -21,18 +21,19 @@ export async function createCourseController(req, res) {
     }
 
     if (!price || price.trim() === '') {
-        return res.status(400).json({
-            success: false,
-            message: 'Price is required'
-        });
+      return res.status(400).json({
+        success: false,
+        message: 'Price is required'
+      });
     }
 
     const courseData = {
       title: title.trim(),
-      description: description ? description.trim() : null,
-      category: category ? category.trim() : null,
-      level: level ? level.trim() : null,
-      price: price.trim()
+      description: description.trim(),
+      category: category.trim(),
+      level: level.trim(),
+      price: price.trim(),
+      duration: duration.trim()
     };
 
     const newCourse = await createCourse(courseData);
@@ -123,7 +124,7 @@ export async function updateCourseController(req, res) {
     }
 
     // Validate allowed fields
-    const allowedFields = ['title', 'description', 'category', 'level', 'price'];
+    const allowedFields = ['title', 'description', 'category', 'level', 'price', 'duration'];
     const invalidFields = Object.keys(updates).filter(field => !allowedFields.includes(field));
 
     if (invalidFields.length > 0) {
@@ -134,7 +135,7 @@ export async function updateCourseController(req, res) {
     }
 
     // Trim string fields
-    const stringFields = ['title', 'description', 'category', 'level', 'price'];
+    const stringFields = ['title', 'description', 'category', 'level', 'price', 'duration'];
     stringFields.forEach(field => {
       if (updates[field] !== undefined) {
         updates[field] = updates[field] ? updates[field].trim() : null;

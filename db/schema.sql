@@ -43,23 +43,26 @@ ON CONFLICT (email) DO NOTHING;
 CREATE TABLE IF NOT EXISTS Course (
     course_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    description TEXT,
-    category VARCHAR(100),
-    level VARCHAR(50),
+    description TEXT NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    level VARCHAR(50) NOT NULL,
     price VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    duration VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_course_category ON Course (category);
 CREATE INDEX IF NOT EXISTS idx_course_level ON Course (level);
 
-INSERT INTO Course (title, description, category, level, price)
+INSERT INTO Course (title, description, category, level, price, duration)
 VALUES (
     'Fundamental of Web Development', 
     'Learn the basics of wbe developmenet with HTML, CSS, and Basic Javascript.', 
     'Web Development', 
     'Beginner', 
-    'Free'
+    'Free',
+    '2 Months'
 )
 ON CONFLICT DO NOTHING; -- Note: Course doesn't have a unique constraint on title here, but often wanted
 
@@ -83,7 +86,7 @@ CREATE TABLE IF NOT EXISTS Video (
     description TEXT,
     youtube_url TEXT NOT NULL,
     order_index INT,
-    duration INT,
+    duration VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
@@ -122,7 +125,6 @@ CREATE TABLE IF NOT EXISTS Receipt (
 );
 
 CREATE INDEX IF NOT EXISTS idx_receipt_user_id ON Receipt (user_id);
-
 
 CREATE TABLE IF NOT EXISTS AccessRequest (
     request_id SERIAL PRIMARY KEY,
