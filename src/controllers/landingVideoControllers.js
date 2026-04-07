@@ -4,7 +4,7 @@ import {
   getLandingVideoById,
   getAllLandingVideos,
   deleteLandingVideoById,
-} from '../models/LandingVideoModel.js';
+} from '../models/landingVideoModel.js';
 
 /**
  * Admin controller: create a new landing video
