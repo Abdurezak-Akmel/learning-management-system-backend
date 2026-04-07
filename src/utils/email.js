@@ -20,7 +20,7 @@ if (SMTP_HOST && SMTP_USER) {
       pass: SMTP_PASS,
     },
     // Useful for cloud deployments where connections might be flaky
-    connectionTimeout: 100000, // 100 seconds
+    connectionTimeout: 10000, // 10 seconds
     tls: {
       // Do not fail on invalid certs (common requirement for some SMTP setups)
       rejectUnauthorized: false
