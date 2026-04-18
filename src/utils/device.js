@@ -1,22 +1,40 @@
 /**
- * Generates a device identifier from User-Agent string.
- * This is currently a simple pass-through but can be enhanced to normalize or hash the UA.
- * @param {string} userAgent - The User-Agent header from the request.
- * @returns {string} The device identifier.
+ * Generates a stable device identifier by normalizing the User-Agent.
+ * Removes volatile version numbers to prevent lockouts after browser updates.
  */
 export function generateDevice(userAgent) {
-  return userAgent || 'Unknown Device';
+  if (!userAgent) return 'Unknown Device';
+
+  // 1. Identify the OS
+  let os = "Unknown OS";
+  if (userAgent.includes("Windows")) os = "Windows";
+  else if (userAgent.includes("Macintosh")) os = "MacOS";
+  else if (userAgent.includes("Linux")) os = "Linux";
+  else if (userAgent.includes("Android")) os = "Android";
+  else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) os = "iOS";
+
+  // 2. Identify the Browser (Order matters for Chromium-based browsers)
+  let browser = "Unknown Browser";
+  if (userAgent.includes("Edg/")) browser = "Edge";
+  else if (userAgent.includes("Chrome/")) browser = "Chrome";
+  else if (userAgent.includes("Safari/") && !userAgent.includes("Chrome")) browser = "Safari";
+  else if (userAgent.includes("Firefox/")) browser = "Firefox";
+
+  // 3. Create a stable identity string
+  const stableId = `${os}-${browser}`;
+
+  // Optional: Return a hash for privacy and consistent storage length
+  // return crypto.createHash('sha256').update(stableId).digest('hex');
+
+  return stableId;
 }
 
-
-
 /**
- * Verifies if the current login device matches the one used during registration.
- * @param {string} currentDevice - The device identifier from the current request.
- * @param {string} storedDevice - The device identifier stored in the user record.
- * @returns {boolean} True if they match, false otherwise.
+ * Verification remains the same, but now it compares stable identifiers.
  */
 export function verifyDevice(currentDevice, storedDevice) {
-  if (!storedDevice) return true; // If no device was stored at registration (legacy or admin), allow.
-  return currentDevice === storedDevice;
+  if (!storedDevice) return true;
+
+  // Clean both strings just in case
+  return currentDevice.trim() === storedDevice.trim();
 }
