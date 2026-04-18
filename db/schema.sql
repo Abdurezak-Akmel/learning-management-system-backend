@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS Role (
 
 -- Role must be injected first
 INSERT INTO Role (role_name, description) 
-VALUES ('Admin', 'full access'), ('Role_01', 'Access to free courses only')
+VALUES ('Admin', 'Full access'), ('Role_01', 'Access to free courses only')
 ON CONFLICT (role_name) DO NOTHING;
 
 
@@ -30,16 +30,6 @@ CREATE TABLE IF NOT EXISTS "User" (
 CREATE INDEX IF NOT EXISTS idx_user_role_id ON "User" (role_id);
 CREATE INDEX IF NOT EXISTS idx_user_email ON "User" (email);
 
-
--- Admin Credentials
--- Email: habeshatech16@gmail.com
--- Password: admin123
--- Make sure referenced role exists in the database
-INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, registration_device)
-VALUES ('System Admin', 'abduakmel16@gmail.com', '$2b$10$g9UFpczmEXxNFe97q077h..1PguNgDHpN9LD9FvEBlwTdfjBG/ZFG', 1, 'active', true, 'Admin Device')
-ON CONFLICT (email) DO NOTHING;
-
-
 CREATE TABLE IF NOT EXISTS Course (
     course_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -58,13 +48,13 @@ CREATE INDEX IF NOT EXISTS idx_course_level ON Course (level);
 INSERT INTO Course (title, description, category, level, price, duration)
 VALUES (
     'Fundamental of Web Development', 
-    'Learn the basics of wbe developmenet with HTML, CSS, and Basic Javascript.', 
+    'Learn the basics of web-site developmenet with HTML, CSS, and Basic Javascript.', 
     'Web Development', 
     'Beginner', 
-    'Free',
+    'FREE',
     '2 Months'
 )
-ON CONFLICT DO NOTHING; -- Note: Course doesn't have a unique constraint on title here, but often wanted
+ON CONFLICT DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS role_course (
     role_id INT NOT NULL,

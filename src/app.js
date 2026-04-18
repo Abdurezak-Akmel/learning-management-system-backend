@@ -56,8 +56,8 @@ app.use('/api/videos', videoRoutes);
  */
 const seedAdmin = async () => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@tms.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123!';
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
     const adminRoleId = Number(process.env.ADMIN_ROLE_ID) || 1;
 
     // Check if any admin exists (adjust query based on your schema)
