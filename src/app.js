@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 
 // 1. Serve static files from your uploads directory
 // Adjust the path if 'uploads' is at the root of your project
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // 2. Serve the React static files (Assuming your build is in a 'public' folder)
 app.use(express.static(path.join(__dirname, 'public')));
