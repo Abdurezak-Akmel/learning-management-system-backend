@@ -59,6 +59,7 @@ app.use('/api/videos', videoRoutes);
  * Seeding Logic: Creates a default admin if none exists
  */
 const seedAdmin = async () => {
+  console.log('Starting admin seeding check...');
   try {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
@@ -78,6 +79,8 @@ const seedAdmin = async () => {
         ['System Admin', adminEmail, hashedPassword, adminRoleId, 'active', true, 'Admin Device']
       );
       console.log(`Admin user seeded: ${adminEmail}`);
+    } else {
+      console.log('Admin user already exists.');
     }
   } catch (error) {
     console.error('Error seeding admin:', error.message);
@@ -85,7 +88,7 @@ const seedAdmin = async () => {
 };
 
 // 3. SPA Routing: Handle React routing (MUST be after API routes)
-app.get('*', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

@@ -13,7 +13,7 @@ import { Pool } from 'pg';
 //   connectionTimeoutMillis: 2000,
 // });
 
-// Use the Connection String from Supabase
+// // Use the Connection String from Supabase
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
