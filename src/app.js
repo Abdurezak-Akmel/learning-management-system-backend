@@ -25,19 +25,23 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 // Middleware
 app.use(cors());
 app.use((req, res, next) => {
   if (req.headers["content-type"]?.includes("multipart/form-data")) {
-    return next(); // skip JSON parser
+    return next();
   }
   express.json()(req, res, next);
 });
 
-// Routes
+// 1. Serve static files from your uploads directory
+// Adjust the path if 'uploads' is at the root of your project
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 2. Serve the React static files (Assuming your build is in a 'public' folder)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API Routes
 app.use('/api/access-requests', accessRequestRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
@@ -60,7 +64,11 @@ const seedAdmin = async () => {
     const adminPassword = process.env.ADMIN_PASSWORD;
     const adminRoleId = Number(process.env.ADMIN_ROLE_ID) || 1;
 
-    // Check if any admin exists (adjust query based on your schema)
+    if (!adminEmail || !adminPassword) {
+      console.log('Skipping seed: ADMIN_EMAIL or ADMIN_PASSWORD not set.');
+      return;
+    }
+
     const { rows } = await pool.query('SELECT * FROM "User" WHERE email = $1', [adminEmail]);
 
     if (rows.length === 0) {
@@ -76,14 +84,15 @@ const seedAdmin = async () => {
   }
 };
 
-// If this file is run directly, start the server.
-if (process.argv[1] === __filename) {
-  app.listen(PORT, async () => {
-    console.log(`Server listening on port ${PORT}`);
+// 3. SPA Routing: Handle React routing (MUST be after API routes)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-    // Run the seed function on startup
-    await seedAdmin();
-  });
-}
+// Start server and seed
+app.listen(PORT, async () => {
+  console.log(`Server listening on port ${PORT}`);
+  await seedAdmin();
+});
 
 export default app;

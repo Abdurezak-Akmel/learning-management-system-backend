@@ -47,7 +47,7 @@ CREATE INDEX IF NOT EXISTS idx_course_level ON Course (level);
 
 INSERT INTO Course (title, description, category, level, price, duration)
 VALUES (
-    'Fundamental of Web Development', 
+    'Fundamentals of Web Development', 
     'Learn the basics of web-site developmenet with HTML, CSS, and Basic Javascript.', 
     'Web Development', 
     'Beginner', 

@@ -5,7 +5,6 @@ const {
   SMTP_PORT,
   SMTP_USER,
   SMTP_PASS,
-  BASE_URL,
   FROM_EMAIL,
 } = process.env;
 
