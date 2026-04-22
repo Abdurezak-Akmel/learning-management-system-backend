@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { createUser, getUserByEmail, getUserByVerificationToken, updateUserById, getUserById } from '../models/userModel.js';
 import { getAllRoles } from '../models/roleModel.js';
 import { createToken, getValidTokenByResetToken, markTokenUsed, deleteTokensByUserId } from '../models/prtModel.js';
 import { generateVerificationToken, isTokenExpired } from '../utils/token.js';
 import { sendVerificationEmail, sendEmail } from '../utils/email.js';
 import { generateToken, verifyToken } from '../utils/jwt.js';
-import { generateDevice, verifyDevice } from '../utils/device.js';
 
 /**
  * Register a new user.
@@ -25,10 +25,6 @@ export async function register(req, res) {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    // Extract device information from request headers
-    const userAgent = req.headers['user-agent'] || 'Unknown Device';
-    const registration_device = generateDevice(userAgent);
-
     // Check if email already exists
     const existing = await getUserByEmail(email);
     if (existing) {
@@ -42,6 +38,11 @@ export async function register(req, res) {
     // Generate verification token and expiry
     const { token: verification_token, expiry: verification_token_expiry } = generateVerificationToken(24);
 
+    // Create a unique device identifier for this registration
+    const device_id = (typeof crypto.randomUUID === 'function')
+      ? crypto.randomUUID()
+      : crypto.randomBytes(16).toString('hex');
+
     // Insert user with verification fields
     const newUser = await createUser({
       name,
@@ -50,7 +51,7 @@ export async function register(req, res) {
       email_verified: false,
       verification_token,
       verification_token_expiry,
-      registration_device,
+      device_id,
     });
 
     // Send verification email (don't fail registration if email fails)
@@ -228,14 +229,18 @@ export async function login(req, res) {
       return res.status(403).json({ success: false, message: 'Email not verified' });
     }
 
-    // Device-based authentication for non-admin users
+    // Device-based authentication for non-admin users: compare client-provided device_id with stored value
     if (user.role_id !== Number(process.env.ADMIN_ROLE_ID)) {
-      const currentDevice = generateDevice(req.headers['user-agent'] || 'Unknown Device');
+      const { device_id: sentDeviceId } = req.body || {};
 
-      if (!verifyDevice(currentDevice, user.registration_device)) {
+      if (!sentDeviceId) {
+        return res.status(400).json({ success: false, message: 'device_id is required for login' });
+      }
+
+      if (sentDeviceId !== user.device_id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. You can only login from your registered device for security reasons.'
+          message: 'Access denied. Device does not match the registered device.'
         });
       }
     }

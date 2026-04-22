@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     email_verified BOOLEAN DEFAULT FALSE,
     verification_token TEXT,
     verification_token_expiry TIMESTAMP,
-    registration_device VARCHAR(255) NOT NULL,
+    device_id VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES Role(role_id)
 );

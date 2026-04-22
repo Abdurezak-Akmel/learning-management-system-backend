@@ -75,7 +75,7 @@ const seedAdmin = async () => {
     if (rows.length === 0) {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       await pool.query(
-        'INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, registration_device) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        'INSERT INTO "User" (name, email, password_hash, role_id, status, email_verified, device_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
         ['System Admin', adminEmail, hashedPassword, adminRoleId, 'active', true, 'Admin Device']
       );
       console.log(`Admin user seeded: ${adminEmail}`);
