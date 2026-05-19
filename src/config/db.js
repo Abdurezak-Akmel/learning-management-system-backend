@@ -2,27 +2,27 @@ import 'dotenv/config';
 import { Pool } from 'pg';
 
 // Configure the pool using env vars; default database is `tms`.
-const pool = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
-
-// // Use the Connection String from Supabase
 // const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL,
-//   ssl: {
-//     rejectUnauthorized: false // Required for Supabase cloud connections
-//   },
+//   host: process.env.PGHOST,
+//   user: process.env.PGUSER,
+//   password: process.env.PGPASSWORD,
+//   database: process.env.PGDATABASE,
+//   port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
 //   max: 20,
 //   idleTimeoutMillis: 30000,
 //   connectionTimeoutMillis: 2000,
 // });
+
+// Use the Connection String from Supabase
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Required for Supabase cloud connections
+  },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
 
 pool.on('error', (err) => {
   // Log unexpected errors on idle clients
