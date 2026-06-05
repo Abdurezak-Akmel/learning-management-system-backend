@@ -11,7 +11,7 @@ import {
  */
 export async function createCourseController(req, res) {
   try {
-    const { title, description, category, level, price, duration } = req.body || {};
+    const { title, description, category, level, price, duration, course_group, course_order } = req.body || {};
 
     if (!title || title.trim() === '') {
       return res.status(400).json({
@@ -29,11 +29,13 @@ export async function createCourseController(req, res) {
 
     const courseData = {
       title: title.trim(),
-      description: description.trim(),
-      category: category.trim(),
-      level: level.trim(),
+      description: description ? description.trim() : '',
+      category: category ? category.trim() : '',
+      level: level ? level.trim() : '',
       price: price.trim(),
-      duration: duration.trim()
+      duration: duration.trim(),
+      course_group: course_group ? String(course_group).trim() : 'General',
+      course_order: Number.isFinite(Number(course_order)) ? Number(course_order) : 0
     };
 
     const newCourse = await createCourse(courseData);
@@ -124,7 +126,7 @@ export async function updateCourseController(req, res) {
     }
 
     // Validate allowed fields
-    const allowedFields = ['title', 'description', 'category', 'level', 'price', 'duration'];
+    const allowedFields = ['title', 'description', 'category', 'level', 'price', 'duration', 'course_group', 'course_order'];
     const invalidFields = Object.keys(updates).filter(field => !allowedFields.includes(field));
 
     if (invalidFields.length > 0) {
@@ -135,12 +137,20 @@ export async function updateCourseController(req, res) {
     }
 
     // Trim string fields
-    const stringFields = ['title', 'description', 'category', 'level', 'price', 'duration'];
+    const stringFields = ['title', 'description', 'category', 'level', 'price', 'duration', 'course_group'];
     stringFields.forEach(field => {
       if (updates[field] !== undefined) {
         updates[field] = updates[field] ? updates[field].trim() : null;
       }
     });
+
+    if (updates.course_order !== undefined) {
+      const co = Number(updates.course_order);
+      if (!Number.isInteger(co)) {
+        return res.status(400).json({ success: false, message: 'course_order must be an integer' });
+      }
+      updates.course_order = co;
+    }
 
     const updatedCourse = await updateCourseById(courseId, updates);
     if (!updatedCourse) {

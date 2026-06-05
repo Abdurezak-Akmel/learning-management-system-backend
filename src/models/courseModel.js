@@ -2,12 +2,12 @@ import { query } from '../config/db.js';
 
 /**
  * Create a new course.
- * @param {{title:string,description?:string,category?:string,level?:string,price:string,duration:string}} course
+ * @param {{title:string,description?:string,category?:string,level?:string,price:string,duration:string,course_group:string,course_order:number}} course
  * @returns {Promise<object>} inserted course row
  */
 export async function createCourse(course) {
-	const text = `INSERT INTO Course (title, description, category, level, price, duration) VALUES ($1,$2,$3,$4,$5, $6) RETURNING *`;
-	const values = [course.title, course.description, course.category, course.level, course.price, course.duration];
+	const text = `INSERT INTO Course (title, description, category, level, price, duration, course_group, course_order) VALUES ($1,$2,$3,$4,$5, $6, $7, $8) RETURNING *`;
+	const values = [course.title, course.description, course.category, course.level, course.price, course.duration, course.course_group, course.course_order];
 	const res = await query(text, values);
 	return res.rows[0];
 }
@@ -29,7 +29,7 @@ export async function getCourseById(course_id) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getCoursesByTitle(title) {
-	const text = `SELECT * FROM Course WHERE title = $1 ORDER BY course_id`;
+	const text = `SELECT * FROM Course WHERE title = $1 ORDER BY course_order, course_id`;
 	const res = await query(text, [title]);
 	return res.rows;
 }
@@ -40,7 +40,7 @@ export async function getCoursesByTitle(title) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getCoursesByCategory(category) {
-	const text = `SELECT * FROM Course WHERE category = $1 ORDER BY course_id`;
+	const text = `SELECT * FROM Course WHERE category = $1 ORDER BY course_order, course_id`;
 	const res = await query(text, [category]);
 	return res.rows;
 }
@@ -51,7 +51,7 @@ export async function getCoursesByCategory(category) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getCoursesByLevel(level) {
-	const text = `SELECT * FROM Course WHERE level = $1 ORDER BY course_id`;
+	const text = `SELECT * FROM Course WHERE level = $1 ORDER BY course_order, course_id`;
 	const res = await query(text, [level]);
 	return res.rows;
 }
@@ -61,7 +61,7 @@ export async function getCoursesByLevel(level) {
  * @returns {Promise<Array>} array of courses
  */
 export async function getAllCourses() {
-	const text = `SELECT * FROM Course ORDER BY course_id`;
+	const text = `SELECT * FROM Course ORDER BY course_order, course_id`;
 	const res = await query(text);
 	return res.rows;
 }
@@ -76,7 +76,7 @@ export async function updateCourseById(course_id, updates) {
 	const set = [];
 	const values = [];
 	let idx = 1;
-	const allowed = ['title', 'description', 'category', 'level', 'price', 'duration', 'created_by'];
+	const allowed = ['title', 'description', 'category', 'level', 'price', 'duration', 'course_group', 'course_order'];
 	for (const key of allowed) {
 		if (Object.prototype.hasOwnProperty.call(updates, key)) {
 			set.push(`${key} = $${idx++}`);
@@ -85,6 +85,8 @@ export async function updateCourseById(course_id, updates) {
 	}
 
 	if (set.length === 0) return getCourseById(course_id);
+	// Always update the `updated_at` timestamp when making changes
+	set.push(`updated_at = CURRENT_TIMESTAMP`);
 
 	const text = `UPDATE Course SET ${set.join(', ')} WHERE course_id = $${idx} RETURNING *`;
 	values.push(course_id);

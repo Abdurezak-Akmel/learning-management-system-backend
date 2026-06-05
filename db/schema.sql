@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS Course (
     level VARCHAR(50) NOT NULL,
     price VARCHAR(255) NOT NULL,
     duration VARCHAR(255) NOT NULL,
+    course_group VARCHAR(255) NOT NULL,
+    course_order INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -45,14 +47,16 @@ CREATE TABLE IF NOT EXISTS Course (
 CREATE INDEX IF NOT EXISTS idx_course_category ON Course (category);
 CREATE INDEX IF NOT EXISTS idx_course_level ON Course (level);
 
-INSERT INTO Course (title, description, category, level, price, duration)
+INSERT INTO Course (title, description, category, level, price, duration, course_group, course_order)
 VALUES (
     'Fundamentals of Web Development', 
     'Learn the basics of web-site developmenet with HTML, CSS, and Basic Javascript.', 
     'Web Development', 
     'Beginner', 
     'FREE',
-    '2 Months'
+    '2 Months',
+    'Group 1 - PERN Stack Development',
+    1  
 )
 ON CONFLICT DO NOTHING;
 
