@@ -1,8 +1,8 @@
-# Tutorial Management System (TMS) Backend API Documentation
+# Lutorial Management System (LMS) Backend API Documentation
 
 ## Overview
 
-The Tutorial Management System (TMS) Backend is a comprehensive RESTful API built with Node.js, Express, and PostgreSQL. It provides complete functionality for managing users, courses, tutorials, access requests, and educational materials with role-based access control and device-based authentication.
+The Lutorial Management System (TMS) Backend is a comprehensive RESTful API built with Node.js, Express, and PostgreSQL as its database system. It provides complete functionality for managing users, courses, tutorials, access requests, and educational materials with role-based access control and device-based authentication.
 
 ## Table of Contents
 
@@ -348,4 +348,4 @@ The API includes comprehensive error handling and validation. Test endpoints are
 
 ---
 
-Developed with ❤️ by Abdurezak Akmel from HabeshaTech Team.
+Developed with ❤️ by Abdurezak Akmel, owner of HabeshaTech.
